@@ -1,0 +1,6 @@
+{% extends "layout.html" %}
+{% block body %}
+<form method="POST" action="{{ url_for('switch_led') }}">
+  <input type="submit" value="Switch led" />
+</form>
+{% endblock %}
