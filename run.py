@@ -1,6 +1,7 @@
-from wello.ui import app
+import wello
 
 
 if __name__ == '__main__':
-    app.DEBUG = True
-    app.run()
+    wello.UIThread().start()
+    wello.ControllerThread().start()
+    wello.ReaderThread().start()
