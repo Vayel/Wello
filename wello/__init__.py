@@ -1,6 +1,8 @@
 from time import sleep
 from threading import Thread
 
+import serial
+
 from . import controllers
 from .controllers import DigitalOutput
 from . import elec
@@ -8,6 +10,8 @@ from . import models
 from . import readers
 from . import ui
 from . import writers
+
+ser = serial.Serial('')
 
 
 class UIThread(Thread):
@@ -21,7 +25,7 @@ class ControllerThread(Thread):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.water_level = controllers.WaterLevel(5, 100)
-        self.writer = writers.serial.OneSensor()
+        self.writer = writers.serial.OneSensor(ser)
 
     def run(self):
         while True:
@@ -42,7 +46,7 @@ class ReaderThread(Thread):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.reader = readers.serial.ManySensors()
+        self.reader = readers.serial.ManySensors(ser)
 
     def run(self):
         while True:
