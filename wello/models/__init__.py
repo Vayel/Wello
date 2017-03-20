@@ -8,4 +8,4 @@ def last_water_level():
 
 def save_last_water_level(val):
     with open(WATER_LEVEL_FILE, 'w') as f:
-        f.write(val)
+        f.write(str(val))
