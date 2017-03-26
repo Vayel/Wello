@@ -16,17 +16,18 @@ class WaterLevel:
         except (FileNotFoundError, ValueError):
             return 0  # TODO
 
-    def switch_on_pump_in(self):
-        if self.measure_level() >= self.max_level:
+    def pump_in(self):
+        level = self.measure_level()
+        if level >= self.max_level:
             return DigitalOutput.off
 
         # TODO: to be removed
-        if self.measure_level() <= self.min_level:
+        if level <= self.min_level:
             return DigitalOutput.on
 
         return DigitalOutput.any
 
-    def switch_on_pump_out(self):
+    def pump_out(self):
         if self.measure_level() <= self.min_level:
             return DigitalOutput.off
 

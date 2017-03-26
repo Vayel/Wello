@@ -3,6 +3,9 @@ from threading import Thread
 
 import serial
 
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
 from . import controllers
 from .controllers.enum import DigitalOutput
 from . import io
@@ -12,6 +15,11 @@ SERIAL_PORT = '/dev/ttyACM0'
 SERIAL_BAUDRATE = 9600
 
 io_protocol = io.ArduinoProtocol()
+
+engine = create_engine('sqlite:///./wello.db')
+
+controllers.io_protocol = io_protocol
+controllers.DBSession = sessionmaker(bind=engine)
 
 
 class UIThread(Thread):
@@ -28,24 +36,22 @@ class ControllerThread(Thread):
 
     def run(self):
         while True:
-            if self.water_level.switch_on_pump_in() == DigitalOutput.on:
-                io_protocol.switch_on_pump_in(True)
-            elif self.water_level.switch_on_pump_in() == DigitalOutput.off:
-                io_protocol.switch_on_pump_in(False)
+            if self.water_level.pump_in() == DigitalOutput.on:
+                controllers.pump_in(True)
+            elif self.water_level.pump_in() == DigitalOutput.off:
+                controllers.pump_in(False)
 
-            if self.water_level.switch_on_pump_out() == DigitalOutput.on:
-                io_protocol.switch_on_pump_out(True)
-            elif self.water_level.switch_on_pump_out() == DigitalOutput.off:
-                io_protocol.switch_on_pump_out(False)
-
-            sleep(0.05)
+            sleep(2)
 
 
 class IOThread(Thread):
 
     def run(self):
+        io.string.run(io_protocol)
+        """
         io.serial.run(
             io_protocol,
             SERIAL_PORT,
             SERIAL_BAUDRATE
         )
+        """
