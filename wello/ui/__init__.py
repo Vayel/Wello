@@ -1,6 +1,6 @@
 import flask
 
-from .. import elec
+from .. import controllers
 
 app = flask.Flask(__name__)
 
@@ -10,9 +10,9 @@ def home():
     return flask.render_template('home.html')
 
 
-@app.route('/switch-led', methods=['POST'])
-def switch_led():
-    elec.switch_led()
+@app.route('/pump_in/<int:running>', methods=['POST'])
+def pump_in(running):
+    controllers.pump_in(running)
     return flask.redirect(flask.url_for('home'))
 
 

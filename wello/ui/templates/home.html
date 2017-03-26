@@ -1,6 +1,10 @@
 {% extends "layout.html" %}
 {% block body %}
-<form method="POST" action="{{ url_for('switch_led') }}">
-  <input type="submit" value="Switch led" />
+<form method="POST" action="{{ url_for('pump_in', running=1) }}">
+  <input type="submit" value="Start pump in" />
+</form>
+
+<form method="POST" action="{{ url_for('pump_in', running=0) }}">
+  <input type="submit" value="Stop pump in" />
 </form>
 {% endblock %}
