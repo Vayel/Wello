@@ -1,5 +1,9 @@
 {% extends "layout.html" %}
 {% block body %}
+<p>
+Water volume: {{ water_volume.volume }} on {{ water_volume.datetime }}
+</p>
+
 <form method="POST" action="{{ url_for('pump_in', running=1) }}">
   <input type="submit" value="Start pump in" />
 </form>

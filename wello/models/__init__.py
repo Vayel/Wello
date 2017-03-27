@@ -5,7 +5,7 @@ from sqlalchemy_defaults import make_lazy_configured
 
 from . import config
 from .config import Config
-from .shared import Session
+from .shared import Session, request
 from . import pump_in_command
 from . import water_volume
 
@@ -26,6 +26,7 @@ def open_session():
         session.close()
 
 
-def add(session, *args):
+@request
+def save(*args, session=None):
     for obj in args:
         session.add(obj)

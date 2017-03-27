@@ -9,9 +9,14 @@ app = flask.Flask(__name__)
 
 @app.route('/')
 def home():
-    with models.open_session() as session:
-        config_form = forms.Config(obj=models.config.last(session))
-    return flask.render_template('home.html', config_form=config_form)
+    config_form = forms.Config(obj=models.config.last())
+    water_volume = models.water_volume.last()
+
+    return flask.render_template(
+        'home.html',
+        config_form=config_form,
+        water_volume=water_volume,
+    )
 
 
 @app.route('/pump_in/<int:running>', methods=['POST'])
@@ -28,8 +33,7 @@ def configure():
         config = models.Config()
         form.populate_obj(config)
 
-        with models.open_session() as session:
-            models.add(session, config)
+        models.save(config)
 
     return flask.redirect(flask.url_for('home'))
 

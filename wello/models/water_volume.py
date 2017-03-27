@@ -3,7 +3,7 @@ from functools import partial
 from sqlalchemy import DateTime, Integer
 from sqlalchemy_defaults import Column
 
-from .shared import Base, last_value
+from .shared import Base, last_value, request
 from . import exceptions, config
 
 
@@ -18,9 +18,10 @@ class WaterVolume(Base):
 
 last = partial(last_value, WaterVolume)
 
-def write(value, session):
-    cfg = config.last(session)
-    last_volume = last(session)
+@request
+def write(value, session=None):
+    cfg = config.last(session=session)
+    last_volume = last(session=session)
 
     if cfg is None:
         raise exceptions.NeedConfiguration()

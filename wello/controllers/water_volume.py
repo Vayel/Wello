@@ -10,9 +10,7 @@ class WaterVolume:
         self.max_ = max_
 
     def pump_in(self):
-        with models.open_session() as session:
-            volume = models.water_volume.last(session)
-            session.expunge_all()
+        volume = models.water_volume.last()
 
         if volume is None:
             return DigitalOutput.any
@@ -29,8 +27,7 @@ class WaterVolume:
         return DigitalOutput.any
 
     def pump_out(self):
-        with models.open_session() as session:
-            if models.water_volume.last(session) <= self.min_:
-                return DigitalOutput.off
+        if models.water_volume.last() <= self.min_:
+            return DigitalOutput.off
 
         return DigitalOutput.any
