@@ -1,10 +1,19 @@
 import flask
 
-from .. import controllers
-from .. import models
+from .. import controllers, exceptions, models
 from . import forms
 
 app = flask.Flask(__name__)
+
+try:
+    app.config.from_pyfile('flask.cfg')
+except FileNotFoundError:
+    pass
+
+try:
+    app.config.from_envvar('WELLO_FLASK_CONFIG_FILE')
+except RuntimeError:
+    pass
 
 
 @app.route('/')
@@ -21,7 +30,11 @@ def home():
 
 @app.route('/pump_in/<int:running>', methods=['POST'])
 def pump_in(running):
-    controllers.pump_in(running)
+    try:
+        controllers.pump_in(running)
+    except exceptions.TankMayOverflow:
+        flask.flash('Allumer la pompe peut faire déborder la cuve.', 'error')
+
     return flask.redirect(flask.url_for('home'))
 
 

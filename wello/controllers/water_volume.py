@@ -27,6 +27,12 @@ def check_init(func):
 
 
 @check_init
+def may_overflow():
+    volume = models.water_volume.last()
+    return volume is None or volume.volume >= _max
+
+
+@check_init
 def pump_in():
     volume = models.water_volume.last()
 
