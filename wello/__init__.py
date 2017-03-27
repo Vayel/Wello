@@ -32,11 +32,11 @@ class ControllerThread(Thread):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.water_volume = controllers.WaterVolume(50, 200)
+        controllers.water_volume.init(50, 200)
 
     def run(self):
         while True:
-            pump_in_output = self.water_volume.pump_in()
+            pump_in_output = controllers.water_volume.pump_in()
 
             if pump_in_output == DigitalOutput.on:
                 controllers.pump_in(True)

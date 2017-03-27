@@ -4,7 +4,8 @@ from sqlalchemy import DateTime, Integer
 from sqlalchemy_defaults import Column
 
 from .shared import Base, last_value, request
-from . import exceptions, config
+from . import config
+from .. import exceptions
 
 
 class WaterVolume(Base):

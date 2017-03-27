@@ -1,33 +1,53 @@
 from .enum import DigitalOutput
 
-from .. import models
+from .. import exceptions, models
+
+_min = None
+_max = None
 
 
-class WaterVolume:
+def init(min_, max_):
+    global _min, _max
 
-    def __init__(self, min_, max_):
-        self.min_ = min_
-        self.max_ = max_
+    min_, max_ = int(min_), int(max_)
 
-    def pump_in(self):
-        volume = models.water_volume.last()
+    if min_ >= max_:
+        raise ValueError()
 
-        if volume is None:
-            return DigitalOutput.any
+    _min, _max = min_, max_
 
-        volume = volume.volume
 
-        if volume >= self.max_:
-            return DigitalOutput.off
+def check_init(func):
+    def wrapper(*args, **kwargs):
+        if _min is None or _max is None:
+            raise exceptions.NeedInitialisation()
 
-        # TODO: to be removed
-        if volume <= self.min_:
-            return DigitalOutput.on
+        return func(*args, **kwargs)
+    return wrapper
 
+
+@check_init
+def pump_in():
+    volume = models.water_volume.last()
+
+    if volume is None:
         return DigitalOutput.any
 
-    def pump_out(self):
-        if models.water_volume.last() <= self.min_:
-            return DigitalOutput.off
+    volume = volume.volume
 
-        return DigitalOutput.any
+    if volume >= _max:
+        return DigitalOutput.off
+
+    # TODO: to be removed
+    if volume <= _min:
+        return DigitalOutput.on
+
+    return DigitalOutput.any
+
+
+@check_init
+def pump_out():
+    if models.water_volume.last() <= _min:
+        return DigitalOutput.off
+
+    return DigitalOutput.any

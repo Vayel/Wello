@@ -1,4 +1,4 @@
-from .water_volume import WaterVolume
+from . import water_volume
 
 from .. import models
 
