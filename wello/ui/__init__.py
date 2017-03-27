@@ -20,11 +20,13 @@ except RuntimeError:
 def home():
     config_form = forms.Config(obj=models.config.last())
     water_volume = models.water_volume.last()
+    pump_in_command = models.pump_in_command.last()
 
     return flask.render_template(
         'home.html',
         config_form=config_form,
         water_volume=water_volume,
+        pump_in=pump_in_command,
     )
 
 

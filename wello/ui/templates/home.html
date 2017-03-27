@@ -4,6 +4,10 @@
 Water volume: {{ water_volume.volume }} on {{ water_volume.datetime }}
 </p>
 
+<p>
+Pump in: {% if pump_in and pump_in.running %} on {% else %} off {% endif %}
+</p>
+
 <form method="POST" action="{{ url_for('pump_in', running=1) }}">
   <input type="submit" value="Start pump in" />
 </form>
