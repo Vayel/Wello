@@ -9,17 +9,17 @@ from sqlalchemy.orm import sessionmaker
 from . import controllers
 from .controllers.enum import DigitalOutput
 from . import io
+from . import models
 from . import ui
 
 SERIAL_PORT = '/dev/ttyACM0'
 SERIAL_BAUDRATE = 9600
 
 io_protocol = io.ArduinoProtocol()
+controllers.io_protocol = io_protocol
 
 engine = create_engine('sqlite:///./wello.db')
-
-controllers.io_protocol = io_protocol
-controllers.DBSession = sessionmaker(bind=engine)
+models.shared.Session.configure(bind=engine)
 
 
 class UIThread(Thread):
@@ -32,13 +32,15 @@ class ControllerThread(Thread):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.water_level = controllers.WaterLevel(50, 200)
+        self.water_volume = controllers.WaterVolume(50, 200)
 
     def run(self):
         while True:
-            if self.water_level.pump_in() == DigitalOutput.on:
+            pump_in_output = self.water_volume.pump_in()
+
+            if pump_in_output == DigitalOutput.on:
                 controllers.pump_in(True)
-            elif self.water_level.pump_in() == DigitalOutput.off:
+            elif pump_in_output == DigitalOutput.off:
                 controllers.pump_in(False)
 
             sleep(2)

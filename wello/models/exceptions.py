@@ -1,0 +1,1 @@
+class NeedConfiguration(ValueError): pass

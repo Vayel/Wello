@@ -1,9 +1,10 @@
-import datetime
-
-from sqlalchemy import Column, Boolean, DateTime, Integer
+from sqlalchemy import Boolean, DateTime, Integer
+from sqlalchemy_defaults import Column
 
 
 class PumpCommand:
+    __lazy_options__ = {}
+
     id = Column(Integer, primary_key=True)
-    running = Column(Boolean)
-    datetime = Column(DateTime, default=datetime.datetime.utcnow)
+    running = Column(Boolean, nullable=False)
+    datetime = Column(DateTime, auto_now=True, nullable=False)

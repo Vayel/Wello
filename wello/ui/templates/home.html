@@ -7,4 +7,16 @@
 <form method="POST" action="{{ url_for('pump_in', running=0) }}">
   <input type="submit" value="Stop pump in" />
 </form>
+
+<form method="POST" action="{{ url_for('configure') }}">
+  <table>
+    {% for field in config_form %}
+      <tr>
+        <td>{{ field.label }}</td>
+        <td>{{ field }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+  <input type="submit" value="Update config" />
+</form>
 {% endblock %}

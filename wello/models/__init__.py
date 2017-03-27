@@ -1,15 +1,31 @@
+from contextlib import contextmanager
+
+import sqlalchemy
+from sqlalchemy_defaults import make_lazy_configured
+
+from . import config
+from .config import Config
+from .shared import Session
 from . import pump_in_command
+from . import water_volume
+
+make_lazy_configured(sqlalchemy.orm.mapper)
 
 
-# TODO: to be stored in database
-WATER_LEVEL_FILE = 'last_water_level'
+@contextmanager
+def open_session():
+    """Provide a transactional scope around a series of operations."""
+    session = Session()
+    try:
+        yield session
+        session.commit()
+    except:
+        session.rollback()
+        raise
+    finally:
+        session.close()
 
 
-def last_water_level():
-    with open(WATER_LEVEL_FILE) as f:
-        return int(f.read())
-
-
-def save_last_water_level(val):
-    with open(WATER_LEVEL_FILE, 'w') as f:
-        f.write(str(val))
+def add(session, *args):
+    for obj in args:
+        session.add(obj)
