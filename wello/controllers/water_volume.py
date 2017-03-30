@@ -37,14 +37,13 @@ def pump_in():
     volume = models.water_volume.last()
 
     if volume is None:
-        return DigitalOutput.any
+        return DigitalOutput.off
 
     volume = volume.volume
 
     if volume >= _max:
         return DigitalOutput.off
 
-    # TODO: to be removed
     if volume <= _min:
         return DigitalOutput.on
 

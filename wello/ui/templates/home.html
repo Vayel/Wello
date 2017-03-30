@@ -20,7 +20,7 @@ Pump in: {% if pump_in and pump_in.running %} on {% else %} off {% endif %}
   <table>
     {% for field in config_form %}
       <tr>
-        <td>{{ field.label }}</td>
+        <td>{{ field.label }} :</td>
         <td>{{ field }}</td>
       </tr>
     {% endfor %}

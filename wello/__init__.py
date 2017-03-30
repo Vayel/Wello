@@ -32,7 +32,7 @@ class ControllerThread(Thread):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        controllers.water_volume.init(50, 200)
+        controllers.water_volume.init(1, 70)
 
     def run(self):
         while True:
@@ -43,17 +43,15 @@ class ControllerThread(Thread):
             elif pump_in_output == DigitalOutput.off:
                 controllers.pump_in(False)
 
-            sleep(2)
+            sleep(0.5)
 
 
 class IOThread(Thread):
 
     def run(self):
-        io.string.run(io_protocol)
-        """
+        # io.string.run(io_protocol)
         io.serial.run(
             io_protocol,
             SERIAL_PORT,
             SERIAL_BAUDRATE
         )
-        """

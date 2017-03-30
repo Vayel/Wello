@@ -1,22 +1,39 @@
 from twisted.protocols.basic import LineReceiver
 
-from .. import models
+from .. import exceptions, models
+from . import tools
 
 
 class ArduinoProtocol(LineReceiver):
     delimiter = b'\r\n'
+    WATER_DISTANCE_KEY = b'WATER_DISTANCE'
 
-    def connectionMade(self):
-        print('Connected')
+    def parse_message(self, message):
+        try:
+            sensor, val = message.split(b'=')
+        except ValueError:
+            raise exceptions.BadMessageFormat()
+        return sensor, val
 
     def lineReceived(self, line):
-        print(line)
         try:
-            val = int(line)
-        except ValueError:
+            sensor, val = self.parse_message(line)
+        except exceptions.BadMessageFormat:
+            print('bad message format: ', line)
             return
 
-        models.save_last_water_level(val)
+        if sensor == self.WATER_DISTANCE_KEY:
+            try:
+                val = int(val)
+                volume = tools.distance_to_volume(val)
+            except ValueError as e:
+                print(e)
+                return
+
+            print('Volume: ', volume)
+            models.water_volume.write(volume)
+        else:
+            print('unknown sensor ', sensor)
 
     def write_sensor(self, sensor, value):
         cmd = '{}={};'.format(sensor, value)
