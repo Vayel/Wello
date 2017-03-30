@@ -28,7 +28,8 @@ def request(func):
 @request
 def last_value(model, session=None):
     obj = session.query(model).order_by(model.__dict__['datetime'].desc()).first()
-    session.expunge(obj)
+    if obj is not None:
+        session.expunge(obj)
     return obj
 
 

@@ -14,5 +14,6 @@ class Config(Base):
 @request
 def last(session=None):
     obj = session.query(Config).order_by(Config.id.desc()).first()
-    session.expunge(obj)
+    if obj is not None:
+        session.expunge(obj)
     return obj
