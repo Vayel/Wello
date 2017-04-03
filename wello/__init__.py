@@ -15,9 +15,6 @@ from . import ui
 SERIAL_PORT = '/dev/ttyACM0'
 SERIAL_BAUDRATE = 9600
 
-io_protocol = io.ArduinoProtocol()
-controllers.io_protocol = io_protocol
-
 engine = create_engine('sqlite:///./wello.db')
 models.shared.Session.configure(bind=engine)
 
@@ -32,7 +29,11 @@ class ControllerThread(Thread):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        controllers.water_volume.init(1, 70)  # TODO: configured from ui and the Config model
+
+        models.signals.configuration.connect(self.configure)
+
+    def configure(self, config, **kwargs):
+        controllers.water_volume.init(config.min_water_volume, config.max_water_volume)
 
     def run(self):
         while True:
@@ -48,11 +49,20 @@ class ControllerThread(Thread):
 
 class IOThread(Thread):
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.protocol = io.ArduinoProtocol()
+        models.signals.pump_in_command.connect(self.protocol.command_pump_in)
+
+    def configure(self, config, **kwargs):
+        pass  # TODO
+
     def run(self):
-        io.string.run(io_protocol)
+        io.string.run(self.protocol)
         """
         io.serial.run(
-            io_protocol,
+            self.protocol,
             SERIAL_PORT,
             SERIAL_BAUDRATE
         )

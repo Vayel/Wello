@@ -64,6 +64,7 @@ def config():
 
             models.save(config)
 
+            flask.flash("Configuration réussie.", 'success')
             return flask.redirect(flask.url_for('home'))
     else:
         form = forms.Config(obj=models.config.last())

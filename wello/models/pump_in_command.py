@@ -2,6 +2,7 @@ from functools import partial
 
 from .shared import Base, last_value, write_digital_output
 from .pump_command import PumpCommand
+from . import signals
 
 
 class PumpInCommand(Base, PumpCommand):
@@ -9,4 +10,4 @@ class PumpInCommand(Base, PumpCommand):
 
 
 last = partial(last_value, PumpInCommand)
-write = partial(write_digital_output, PumpInCommand, 'running')
+write = partial(write_digital_output, PumpInCommand, 'running', signal=signals.pump_in_command)

@@ -44,4 +44,4 @@ def is_valid():
 
 @event.listens_for(Config, 'after_insert')
 def configuration_updated(mapper, connection, target):
-    signals.configuration.emit()
+    signals.configuration.emit(config=target)
