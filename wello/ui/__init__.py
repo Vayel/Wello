@@ -72,5 +72,42 @@ def config():
     return flask.render_template('config.html', form=form)
 
 
+@app.route('/create-cylinder-tank', methods=['GET', 'POST'])
+def create_cylinder_tank():
+    if flask.request.method == 'POST':
+        form = forms.CylinderTank(flask.request.form)
+
+        if form.validate():
+            model = models.CylinderTank()
+            form.populate_obj(model)
+
+            models.save(model)
+
+            return flask.redirect(flask.url_for('config'))
+    else:
+        form = forms.CylinderTank()
+
+    return flask.render_template('create_cylinder_tank.html', form=form)
+
+
+@app.route('/create-cuboid-tank', methods=['GET', 'POST'])
+def create_cuboid_tank():
+    if flask.request.method == 'POST':
+        form = forms.CuboidTank(flask.request.form)
+
+        if form.validate():
+            model = models.CuboidTank()
+            form.populate_obj(model)
+
+            models.save(model)
+
+            return flask.redirect(flask.url_for('config'))
+    else:
+        form = forms.CuboidTank()
+
+    return flask.render_template('create_cuboid_tank.html', form=form)
+
+
+
 if __name__ == '__main__':
     app.run()
