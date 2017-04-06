@@ -10,7 +10,7 @@ from .cuboid_tank import CuboidTank
 from . import cylinder_tank
 from .cylinder_tank import CylinderTank
 from .shared import Session, request
-from . import pump_in_command
+from . import pump_in_state
 from . import tank
 from . import water_volume
 

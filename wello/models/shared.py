@@ -34,14 +34,11 @@ def last_value(model, session=None):
 
 
 @request
-def write_digital_output(model, field, value, signal=None, session=None):
+def write_digital_output(model, field, running, session=None):
     last = last_value(model, session=session)
-    if last is not None and last.__dict__[field] == value:
+    if last is not None and last.__dict__[field] == running:
         return False
 
-    session.add(model(**{field: value,}))
-
-    if signal is not None:
-        signal.emit(running=value)
+    session.add(model(**{field: running,}))
 
     return True

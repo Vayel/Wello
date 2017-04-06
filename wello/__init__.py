@@ -10,6 +10,7 @@ from . import controllers
 from .controllers.enum import DigitalOutput
 from . import io
 from . import models
+from . import signals
 from . import ui
 
 SERIAL_PORT = '/dev/ttyACM0'
@@ -30,7 +31,7 @@ class ControllerThread(Thread):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        models.signals.configuration.connect(self.configure)
+        signals.configuration.connect(self.configure)
 
     def configure(self, config, **kwargs):
         controllers.water_volume.init(config.min_water_volume, config.max_water_volume)
@@ -53,17 +54,15 @@ class IOThread(Thread):
         super().__init__(*args, **kwargs)
 
         self.protocol = io.ArduinoProtocol()
-        models.signals.pump_in_command.connect(self.protocol.command_pump_in)
+        signals.command_pump_in.connect(self.protocol.command_pump_in)
 
     def configure(self, config, **kwargs):
         pass  # TODO
 
     def run(self):
-        io.string.run(self.protocol)
-        """
+        # io.string.run(self.protocol)
         io.serial.run(
             self.protocol,
             SERIAL_PORT,
             SERIAL_BAUDRATE
         )
-        """

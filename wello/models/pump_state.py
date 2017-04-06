@@ -2,7 +2,7 @@ from sqlalchemy import Boolean, DateTime, Integer
 from sqlalchemy_defaults import Column
 
 
-class PumpCommand:
+class PumpState:
     __lazy_options__ = {}
 
     id = Column(Integer, primary_key=True)

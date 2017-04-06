@@ -5,7 +5,7 @@ from sqlalchemy_defaults import Column
 
 from .shared import Base, last_value, request
 from . import config
-from .. import exceptions
+from .. import exceptions, signals
 
 
 class WaterVolume(Base):
@@ -20,16 +20,19 @@ class WaterVolume(Base):
 last = partial(last_value, WaterVolume)
 
 @request
-def write(value, session=None):
+def write(volume, session=None, **kwargs):
     cfg = config.last(session=session)
     last_volume = last(session=session)
 
     if cfg is None:
         raise exceptions.NeedConfiguration()
 
-    if last_volume is not None and abs(last_volume.volume - value) < cfg.water_volume_max_delta:
+    if last_volume is not None and abs(last_volume.volume - volume) < cfg.water_volume_max_delta:
         return False
 
-    session.add(WaterVolume(volume=value))
+    session.add(WaterVolume(volume=volume))
+    signals.water_volume_updated.emit(volume=volume)
 
     return True
+
+signals.update_water_volume.connect(write)

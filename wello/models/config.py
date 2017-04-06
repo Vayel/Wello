@@ -2,7 +2,7 @@ from sqlalchemy import DateTime, Integer, ForeignKey, event
 from sqlalchemy_defaults import Column
 
 
-from . import signals
+from .. import signals
 from .shared import Base, request
 from .tank import Tank
 

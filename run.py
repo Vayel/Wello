@@ -18,4 +18,4 @@ if __name__ == '__main__':
         start(wello.models.config.last())
     else:
         # Do not start threads till first configuration
-        wello.models.signals.configuration.connect(start)
+        wello.signals.configuration.connect(start)

@@ -1,28 +1,30 @@
 from twisted.protocols.basic import LineReceiver
 
-from .. import exceptions, models
+from .. import exceptions, signals
 from . import tools
 
 
 class ArduinoProtocol(LineReceiver):
     delimiter = b'\r\n'
     WATER_DISTANCE_KEY = b'WATER_DISTANCE'
+    PUMP_IN_KEY = b'PUMP_IN'
+    PUMP_OUT_KEY = b'PUMP_OUT'
 
     def parse_message(self, message):
         try:
-            sensor, val = message.split(b'=')
+            key, val = message.split(b'=')
         except ValueError:
             raise exceptions.BadMessageFormat()
-        return sensor, val
+        return key, val
 
     def lineReceived(self, line):
         try:
-            sensor, val = self.parse_message(line)
+            key, val = self.parse_message(line)
         except exceptions.BadMessageFormat:
-            print('bad message format: ', line)
+            print('Bad message format: ', line)
             return
 
-        if sensor == self.WATER_DISTANCE_KEY:
+        if key == self.WATER_DISTANCE_KEY:
             try:
                 val = int(val)
                 volume = tools.distance_to_volume(val)
@@ -30,17 +32,21 @@ class ArduinoProtocol(LineReceiver):
                 print(e)
                 return
 
-            print('Volume: ', volume)
-            models.water_volume.write(volume)
-        else:
-            print('unknown sensor ', sensor)
+            signals.update_water_volume.emit(volume=volume)
+        elif key == self.PUMP_IN_KEY:
+            try:
+                val = bool(int(val))
+            except ValueError as e:
+                print(e)
+                return
+            signals.pump_in_state.emit(running=val)
 
-    def write_sensor(self, sensor, value):
-        cmd = '{}={};'.format(sensor, value)
-        self.sendLine(cmd.encode('utf-8'))
+    def write(self, key, value):
+        cmd = key + b'=' + value + b';';
+        self.sendLine(cmd)
 
-    def command_pump_in(self, running):
-        self.write_sensor('PUMP_IN', 1 if running else 0)
+    def command_pump_in(self, running, **kwargs):
+        self.write(self.PUMP_IN_KEY, b'1' if running else b'0')
 
-    def command_pump_out(self, running):
-        self.write_sensor('PUMP_OUT', 1 if running else 0)
+    def command_pump_out(self, running, **kwargs):
+        self.write(self.PUMP_OUT_KEY, b'1' if running else b'0')

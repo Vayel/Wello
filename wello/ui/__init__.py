@@ -33,12 +33,12 @@ def need_config(func):
 @need_config
 def home():
     water_volume = models.water_volume.last()
-    pump_in_command = models.pump_in_command.last()
+    pump_in = models.pump_in_state.last()
 
     return flask.render_template(
         'home.html',
         water_volume=water_volume,
-        pump_in=pump_in_command,
+        pump_in=pump_in,
     )
 
 
