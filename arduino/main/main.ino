@@ -2,34 +2,62 @@
 
 const int USTrig = 8; // Déclencheur sur la broche 8
 const int USEcho = 9; // Réception sur la broche 9
-const int led = 2; // LED sur la broche 2 
+const int led = 7; // LED sur la broche 7 
+const int warningButton = 3; // Bouton d'arrêt d'urgence sur la broche 3
+const int flowmeter = 2; // Flowmeter sur la broche 2
+const int pump = 10; // Pump sur la broche 10 (CH1)
 
 String command = "";
 boolean commandComplete = false;
-boolean isSent = false;
+unsigned long currentTime;
+unsigned long previousTime;
+
+// Flowmeter variables
+volatile int  flowmeterCounter;     // Measures flow meter pulses
+unsigned int  flowmeterResult;      // Calculated litres/hour
+unsigned long beginFlowmeterDate;   // Begin date
 
 void setup() {
-    Serial.begin(9600);
-    pinMode(led, OUTPUT);
-    digitalWrite(led, HIGH);
-    
-    command.reserve(200);
-    setupWaterLevel();
+  Serial.begin(9600);
+  pinMode(led, OUTPUT);
+  digitalWrite(led, LOW);
+
+  currentTime = millis();
+  previousTime = currentTime;
+
+  // Flowmeter 1
+  setupFlowmeter();
+
+  // WaterDistance
+  setupWaterDistance();
+
+  // Pump
+  setupPump();
+
+  // Pump
+  setupWarningButton();
+
+  Serial.println("PUMP_IN=0");
 }
 
 void loop() {
+  // Send values
   if (checkSending()) {
-    // Send values
-    readWaterLevel();
+    readFlowmeter();
+    readWaterDistance();
   }
 
+  // Receive commands
   if (commandComplete) {
-    checkCommand(command);
+    checkReceiving(command);
     
     // Clear the command:
     command = "";
     commandComplete = false;
   }
+
+  // Update current time
+  currentTime = millis();
 }
 
 void serialEvent() {
@@ -47,37 +75,36 @@ void serialEvent() {
 }
 
 boolean checkSending() {
-  if ((millis() % 1000) < 500) {
-    if (!isSent) {
-      isSent = true;
-      return true;
-    }
-  } else {
-    isSent = false;
+  if (currentTime >= (previousTime + 1000)) {
+    previousTime = currentTime;              // Updates previousTime
+    return true;
   }
 
   return false;
 }
 
-void checkCommand(String command) {
-  Serial.print(command);
+void checkReceiving(String command) {
   if (command.startsWith("PUMP_IN=0")) {
-    Serial.println("LED OFF");
-    digitalWrite(led, HIGH);
-  } else if (command.startsWith("PUMP_IN=1")) {
-    Serial.println("LED ON");
+    Serial.println("[INFO] LED=0");
     digitalWrite(led, LOW);
+    Serial.println("PUMP_IN=0");
+    digitalWrite(pump, LOW);
+  } else if (command.startsWith("PUMP_IN=1")) {
+    Serial.println("[INFO] LED=1");
+    digitalWrite(led, HIGH);
+    Serial.println("PUMP_IN=1");
+    digitalWrite(pump, HIGH);
   }
 }
 
-void setupWaterLevel() {
+void setupWaterDistance() {
   pinMode(USTrig, OUTPUT);
   pinMode(USEcho, INPUT);
   
   digitalWrite(USTrig, LOW);
 }
 
-void readWaterLevel() {
+void readWaterDistance() {
   // 1. Un état haut de 10 microsecondes est mis sur la broche "Trig"
   digitalWrite(USTrig, HIGH);
   delayMicroseconds(10); //on attend 10 µs
@@ -102,7 +129,52 @@ void readWaterLevel() {
     long distance = long(temps*VITESSE); //on multiplie par la vitesse, d=t*v
   
     // 6. On affiche la distance
-    Serial.println(distance); //affiche la distance mesurée (en mètres)
+    //Serial.print("WATER_DISTANCE=");
+    //Serial.println(distance); //affiche la distance mesurée (en mètres)
+
+    // 7. Marge de sécurité
+    if (distance <= 50 && digitalRead(pump) == HIGH) {
+      //Serial.println("[INFO] LED OFF");
+      digitalWrite(led, LOW);
+      Serial.println("[INFO] PUMP_IN OFF");
+      digitalWrite(pump, LOW);
+    }
   }
+}
+
+void setupFlowmeter() {
+  pinMode(flowmeter, INPUT);
+  attachInterrupt(0, increaseFlowmeterCounter, RISING); // Setup Interrupt
+  sei();                                             // Enable interrupts
+}
+
+void increaseFlowmeterCounter()
+{ 
+   flowmeterCounter++;
+} 
+
+void readFlowmeter() {
+  // Every second, calculate and print litres/hour
+  // Pulse frequency (Hz) = 7.5Q, Q is flow rate in L/min. (Results in +/- 3% range)
+  flowmeterResult = (flowmeterCounter * 60 / 7.5); // (Pulse frequency x 60 min) / 7.5Q = flow rate in L/hour 
+  flowmeterCounter = 0;                   // Reset Counter
+
+  //Serial.print("FLOWMETER_IN=");
+  //Serial.println(flowmeterResult, DEC);            // Print litres/hour
+  //Serial.println(" L/hour");
+}
+
+void setupPump() {
+  pinMode(pump, OUTPUT);
+}
+
+void warningButtonAction() {
+  //Serial.println("ARRETTTTTTTTTTTTTTTTTTTTTTT DURGENCEEEEEE");
+}
+
+void setupWarningButton() {
+  pinMode(warningButton, INPUT);
+  attachInterrupt(1, warningButtonAction, FALLING); // Setup Interrupt
+  sei();                                             // Enable interrupts
 }
 
