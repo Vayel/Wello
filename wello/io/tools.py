@@ -1,4 +1,6 @@
-TOTAL_HEIGHT = 135
+from .. import models
+
+TOTAL_HEIGHT = 300
 
 
 def distance_to_volume(distance):
