@@ -37,8 +37,6 @@ def last_value(model, session=None):
 def write_digital_output(model, field, running, session=None):
     last = last_value(model, session=session)
     if last is not None and last.__dict__[field] == running:
-        return False
+        return
 
     session.add(model(**{field: running,}))
-
-    return True

@@ -1,11 +1,13 @@
 from functools import wraps
 
 import flask
+import flask_socketio
 
 from .. import controllers, exceptions, models
 from . import forms
 
 app = flask.Flask(__name__)
+socketio = flask_socketio.SocketIO(app)
 
 try:
     app.config.from_pyfile('flask.cfg')
@@ -108,6 +110,5 @@ def create_cuboid_tank():
     return flask.render_template('create_cuboid_tank.html', form=form)
 
 
-
-if __name__ == '__main__':
-    app.run()
+def update_pump_in_state(running, **kwargs):
+    socketio.emit('pump_in_state', {'running': running})

@@ -3,11 +3,10 @@ import wello
 
 def start(config, **kwargs):  # signalslot needs **kwargs
     thread = wello.IOThread()
-    thread.configure(config)
     thread.start()
 
     thread = wello.ControllerThread()
-    thread.configure(config)
+    wello.ControllerThread.configure(config)
     thread.start()
 
 

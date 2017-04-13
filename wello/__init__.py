@@ -23,17 +23,13 @@ models.shared.Session.configure(bind=engine)
 class UIThread(Thread):
 
     def run(self):
-        ui.app.run()
+        ui.socketio.run(ui.app)
 
 
 class ControllerThread(Thread):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        signals.configuration.connect(self.configure)
-
-    def configure(self, config, **kwargs):
+    @staticmethod
+    def configure(config, **kwargs):
         controllers.water_volume.init(config.min_water_volume, config.max_water_volume)
 
     def run(self):
@@ -49,20 +45,17 @@ class ControllerThread(Thread):
 
 
 class IOThread(Thread):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.protocol = io.ArduinoProtocol()
-        signals.command_pump_in.connect(self.protocol.command_pump_in)
-
-    def configure(self, config, **kwargs):
-        pass  # TODO
+    protocol = io.ArduinoProtocol()
 
     def run(self):
-        # io.string.run(self.protocol)
+        #io.string.run(self.protocol)
         io.serial.run(
             self.protocol,
             SERIAL_PORT,
             SERIAL_BAUDRATE
         )
+
+
+signals.configuration.connect(ControllerThread.configure)
+signals.command_pump_in.connect(IOThread.protocol.command_pump_in)
+signals.pump_in_state.connect(ui.update_pump_in_state)
