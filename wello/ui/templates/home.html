@@ -1,11 +1,11 @@
 {% extends "layout.html" %}
 {% block body %}
 <p>
-Water volume: <span id="water_volume">{{ water_volume.volume }}</span>
+Water volume: <span id="water_volume">Loading...</span>
 </p>
 
 <p>
-Pump in: <span id="pump_in_state">{% if pump_in and pump_in.running %} on {% else %} off {% endif %}</span>
+Pump in: <span id="pump_in_state">Loading...</span>
 </p>
 
 <form method="POST" action="{{ url_for('pump_in', running=1) }}">

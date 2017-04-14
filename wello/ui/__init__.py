@@ -34,14 +34,7 @@ def need_config(func):
 @app.route('/')
 @need_config
 def home():
-    water_volume = models.water_volume.last()
-    pump_in = models.pump_in_state.last()
-
-    return flask.render_template(
-        'home.html',
-        water_volume=water_volume,
-        pump_in=pump_in,
-    )
+    return flask.render_template('home.html')
 
 
 @app.route('/pump_in/<int:running>', methods=['POST'])
