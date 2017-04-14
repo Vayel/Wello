@@ -3,7 +3,7 @@ from functools import wraps
 import flask
 import flask_socketio
 
-from .. import controllers, exceptions, models
+from .. import controllers, exceptions, models, signals
 from . import forms
 
 app = flask.Flask(__name__)
@@ -110,5 +110,9 @@ def create_cuboid_tank():
     return flask.render_template('create_cuboid_tank.html', form=form)
 
 
-def update_pump_in_state(running, **kwargs):
-    socketio.emit('pump_in_state', {'running': running})
+signals.pump_in_state.connect(
+    lambda running, **kwargs: socketio.emit('pump_in_state', {'running': running})
+)
+signals.water_volume_updated.connect(
+    lambda volume, **kwargs: socketio.emit('water_volume', {'volume': volume})
+)

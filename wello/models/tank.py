@@ -15,6 +15,9 @@ class Tank(Base):
         'polymorphic_on': type
     }
 
+    is_cuboid = False
+    is_cylindric = False
+
 
 @request
 def get(id_, session=None):

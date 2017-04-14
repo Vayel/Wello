@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block body %}
 <p>
-Water volume: {{ water_volume.volume }} ({{ water_volume.datetime }})
+Water volume: <span id="water_volume">{{ water_volume.volume }}</span>
 </p>
 
 <p>
@@ -24,6 +24,9 @@ Pump in: <span id="pump_in_state">{% if pump_in and pump_in.running %} on {% els
     socket.on('connect', function() {});
     socket.on('pump_in_state', function(msg){
       document.querySelector('#pump_in_state').innerHTML = msg.running; 
+    });
+    socket.on('water_volume', function(msg){
+      document.querySelector('#water_volume').innerHTML = msg.volume; 
     });
 </script>
 {% endblock %}

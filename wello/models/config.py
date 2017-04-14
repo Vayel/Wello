@@ -1,10 +1,13 @@
 from sqlalchemy import DateTime, Integer, ForeignKey, event
+from sqlalchemy.orm import relationship, with_polymorphic
 from sqlalchemy_defaults import Column
 
 
-from .. import signals
+from .. import exceptions, signals
 from .shared import Base, request
 from .tank import Tank
+from .cuboid_tank import CuboidTank
+from .cylinder_tank import CylinderTank
 
 
 class Config(Base):
@@ -30,7 +33,8 @@ class Config(Base):
         info={'label': 'Max water volume (mm3)'},
         nullable=False,
     )
-    tank = Column(
+    tank = relationship(Tank, lazy='subquery')
+    tank_id = Column(
         Integer,
         ForeignKey('{}.id'.format(Tank.__tablename__)),
         info={'label': 'Tank'},
@@ -43,6 +47,22 @@ def last(session=None):
     obj = session.query(Config).order_by(Config.id.desc()).first()
     if obj is not None:
         session.expunge(obj)
+    return obj
+
+
+@request
+def tank(session=None):
+    cfg = last()
+
+    if cfg is None:
+        raise exceptions.NeedConfiguration()
+
+    entity = with_polymorphic(Tank, [CuboidTank, CylinderTank])
+    obj = session.query(entity).filter(Tank.id == cfg.tank_id).one()
+
+    if obj is not None:
+        session.expunge(obj)
+
     return obj
 
 

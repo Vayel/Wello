@@ -26,3 +26,5 @@ class CylinderTank(Tank):
     __mapper_args__ = {
         'polymorphic_identity': __tablename__,
     }
+
+    is_cylindric = True

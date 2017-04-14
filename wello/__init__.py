@@ -58,4 +58,3 @@ class IOThread(Thread):
 
 signals.configuration.connect(ControllerThread.configure)
 signals.command_pump_in.connect(IOThread.protocol.command_pump_in)
-signals.pump_in_state.connect(ui.update_pump_in_state)

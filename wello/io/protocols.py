@@ -28,8 +28,7 @@ class ArduinoProtocol(LineReceiver):
             try:
                 val = int(val)
                 volume = tools.distance_to_volume(val)
-            except ValueError as e:
-                print(e)
+            except (ValueError, exceptions.NeedConfiguration) as e:
                 return
 
             signals.update_water_volume.emit(volume=volume)
@@ -37,12 +36,12 @@ class ArduinoProtocol(LineReceiver):
             try:
                 val = bool(int(val))
             except ValueError as e:
-                print(e)
                 return
+
             signals.pump_in_state.emit(running=val)
 
     def write(self, key, value):
-        cmd = key + b'=' + value + b';';
+        cmd = key + b'=' + value + b';'
         self.sendLine(cmd)
 
     def command_pump_in(self, running, **kwargs):
