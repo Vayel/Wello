@@ -1,11 +1,15 @@
 {% extends "layout.html" %}
 {% block body %}
 <p>
-Water volume: <span id="water_volume">Loading...</span>
+Water volume: <span id="water_volume">{{ water_volume }}</span>
 </p>
 
 <p>
-Pump in: <span id="pump_in_state">Loading...</span>
+Water flow in: <span id="water_flow_in">{{ water_flow_in }}</span>
+</p>
+
+<p>
+Pump in: <span id="pump_in_state">{{ pump_in_state }}</span>
 </p>
 
 <form method="POST" action="{{ url_for('pump_in', running=1) }}">
@@ -27,6 +31,9 @@ Pump in: <span id="pump_in_state">Loading...</span>
     });
     socket.on('water_volume', function(msg){
       document.querySelector('#water_volume').innerHTML = msg.volume; 
+    });
+    socket.on('water_flow_in', function(msg){
+      document.querySelector('#water_flow_in').innerHTML = msg.value; 
     });
 </script>
 {% endblock %}

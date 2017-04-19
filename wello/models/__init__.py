@@ -12,6 +12,7 @@ from .cylinder_tank import CylinderTank
 from .shared import Session, request
 from . import pump_in_state
 from . import tank
+from . import water_flow_in
 from . import water_volume
 
 make_lazy_configured(sqlalchemy.orm.mapper)
