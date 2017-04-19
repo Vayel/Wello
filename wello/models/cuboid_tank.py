@@ -34,3 +34,14 @@ class CuboidTank(Tank):
     }
 
     is_cuboid = True
+
+    @property
+    def volume(self):
+        return self.height * self.width * self.length
+
+
+@request
+def all(session=None):
+    objs = session.query(CuboidTank).all()
+    session.expunge_all()
+    return objs

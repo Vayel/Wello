@@ -18,6 +18,10 @@ class Tank(Base):
     is_cuboid = False
     is_cylindric = False
 
+    @property
+    def volume(self):
+        raise NotImplementedError()
+
 
 @request
 def get(id_, session=None):

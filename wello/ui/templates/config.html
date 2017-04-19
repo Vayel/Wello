@@ -23,4 +23,45 @@
   </table>
   <input type="submit" value="Update config" />
 </form>
+
+<h2>Cuboid tanks</h2>
+
+<table>
+  <tr>
+    <th>Id</th>
+    <th>Volume</th>
+    <th>Width</th>
+    <th>Length</th>
+    <th>Height</th>
+  </tr>
+  {% for tank in cuboid_tanks %}
+    <tr>
+      <td>{{ tank.id }}</td>
+      <td>{{ tank.volume }}</td>
+      <td>{{ tank.width }}</td>
+      <td>{{ tank.length }}</td>
+      <td>{{ tank.height }}</td>
+    </tr>
+  {% endfor %}
+</table>
+
+<h2>Cylinder tanks</h2>
+
+<table>
+  <tr>
+    <th>Id</th>
+    <th>Volume</th>
+    <th>Radius</th>
+    <th>Height</th>
+  </tr>
+  {% for tank in cylinder_tanks %}
+    <tr>
+      <td>{{ tank.id }}</td>
+      <td>{{ tank.volume }}</td>
+      <td>{{ tank.radius }}</td>
+      <td>{{ tank.height }}</td>
+    </tr>
+  {% endfor %}
+</table>
+
 {% endblock %}

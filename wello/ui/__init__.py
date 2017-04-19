@@ -73,7 +73,12 @@ def config():
     else:
         form = forms.Config(obj=models.config.last())
 
-    return flask.render_template('config.html', form=form)
+    return flask.render_template(
+        'config.html',
+        form=form,
+        cuboid_tanks=models.cuboid_tank.all(),
+        cylinder_tanks=models.cylinder_tank.all(),
+    )
 
 
 @app.route('/create-cylinder-tank', methods=['GET', 'POST'])
