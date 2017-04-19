@@ -27,5 +27,6 @@ class Tank(Base):
 def get(id_, session=None):
     obj = session.query(Tank).get(id_)
     if obj is not None:
+        obj.volume  # Load attributes from database
         session.expunge(obj)
     return obj
