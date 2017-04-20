@@ -2,6 +2,7 @@ from . import water_volume
 
 from .. import exceptions, models, signals
 from . import water_volume
+from . import well_volume
 
 
 def pump_in(running):
