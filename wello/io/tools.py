@@ -6,15 +6,13 @@ TOTAL_HEIGHT = 300
 
 
 def distance_to_cylindric_volume(distance, radius, height):
-    total_vol = math.pi * radius**2 * height
-    empty_vol = math.pi * radius**2 * distance
-    return total_vol - empty_vol
+    vol = math.pi * radius**2 * (height - distance)
+    return max(0, vol)
 
 
 def distance_to_cuboid_volume(distance, width, length, height):
-    total_vol = width * length * height
-    empty_vol = width * length * distance
-    return total_vol - empty_vol
+    vol = width * length * (height - distance)
+    return max(0, vol)
 
 
 def distance_to_volume(distance):
