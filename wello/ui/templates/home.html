@@ -1,11 +1,32 @@
 {% extends "layout.html" %}
+{% block css %}
+<style>
+  .overflow {
+    color: red;
+  }
+  .underflow {
+    color: blue;
+  }
+</style>
+{% endblock %}
+
 {% block body %}
 <p>
-Water volume: <span id="water_volume">Loading...</span>
+Min water volume: {{ config.min_water_volume }}
+<br/>
+Water volume: <span id="water_volume">{{ water_volume }}</span>
+<br/>
+Max water volume: {{ config.max_water_volume }}
 </p>
 
 <p>
-Pump in: <span id="pump_in_state">Loading...</span>
+Min water flow in: {{ config.min_flow_in }}
+<br/>
+Water flow in: <span id="water_flow_in">{{ water_flow_in }}</span>
+</p>
+
+<p>
+Pump in: <span id="pump_in_state">{{ pump_in_state }}</span>
 </p>
 
 <form method="POST" action="{{ url_for('pump_in', running=1) }}">
@@ -20,13 +41,36 @@ Pump in: <span id="pump_in_state">Loading...</span>
 {% block js %}
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
 <script type="text/javascript" charset="utf-8">
+    var MIN_VOLUME = {{ config.min_water_volume }};
+    var MAX_VOLUME = {{ config.max_water_volume }};
+    var MIN_FLOW_IN = {{ config.min_flow_in }};
+
     var socket = io.connect('http://' + document.domain + ':' + location.port);
     socket.on('connect', function() {});
-    socket.on('pump_in_state', function(msg){
+    socket.on('pump_in_state', function(msg) {
       document.querySelector('#pump_in_state').innerHTML = msg.running; 
     });
-    socket.on('water_volume', function(msg){
-      document.querySelector('#water_volume').innerHTML = msg.volume; 
+    socket.on('water_volume', function(msg) {
+      var el = document.querySelector('#water_volume');
+      el.innerHTML = msg.volume; 
+
+      if(msg.volume < MIN_VOLUME) {
+          el.className = 'underflow';
+      } else if(msg.volume > MAX_VOLUME) {
+          el.className = 'overflow';
+      } else {
+          el.className = '';
+      }
+    });
+    socket.on('water_flow_in', function(msg) {
+      var el = document.querySelector('#water_flow_in');
+      el.innerHTML = msg.value; 
+
+      if(msg.volume < MIN_FLOW_IN) {
+          el.className = 'underflow';
+      } else {
+          el.className = '';
+      }
     });
 </script>
 {% endblock %}

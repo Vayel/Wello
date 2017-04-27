@@ -1,3 +1,5 @@
+import math
+
 from sqlalchemy import Integer, ForeignKey
 from sqlalchemy_defaults import Column
 
@@ -28,3 +30,14 @@ class CylinderTank(Tank):
     }
 
     is_cylindric = True
+
+    @property
+    def volume(self):
+        return int(math.pi * self.radius**2 * self.height)
+
+
+@request
+def all(session=None):
+    objs = session.query(CylinderTank).all()
+    session.expunge_all()
+    return objs

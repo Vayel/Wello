@@ -28,11 +28,9 @@ def write(volume, session=None, **kwargs):
         raise exceptions.NeedConfiguration()
 
     if last_volume is not None and abs(last_volume.volume - volume) < cfg.water_volume_max_delta:
-        return False
+        return
 
     session.add(WaterVolume(volume=volume))
     signals.water_volume_updated.emit(volume=volume)
-
-    return True
 
 signals.update_water_volume.connect(write)

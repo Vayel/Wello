@@ -85,13 +85,9 @@ boolean checkSending() {
 
 void checkReceiving(String command) {
   if (command.startsWith("PUMP_IN=0")) {
-    Serial.println("[INFO] LED=0");
-    digitalWrite(led, LOW);
     Serial.println("PUMP_IN=0");
     digitalWrite(pump, LOW);
   } else if (command.startsWith("PUMP_IN=1")) {
-    Serial.println("[INFO] LED=1");
-    digitalWrite(led, HIGH);
     Serial.println("PUMP_IN=1");
     digitalWrite(pump, HIGH);
   }
@@ -129,14 +125,11 @@ void readWaterDistance() {
     long distance = long(temps*VITESSE); //on multiplie par la vitesse, d=t*v
   
     // 6. On affiche la distance
-    //Serial.print("WATER_DISTANCE=");
-    //Serial.println(distance); //affiche la distance mesurée (en mètres)
+    Serial.print("WATER_DISTANCE=");
+    Serial.println(distance); //affiche la distance mesurée (en mètres)
 
     // 7. Marge de sécurité
     if (distance <= 50 && digitalRead(pump) == HIGH) {
-      //Serial.println("[INFO] LED OFF");
-      digitalWrite(led, LOW);
-      Serial.println("[INFO] PUMP_IN OFF");
       digitalWrite(pump, LOW);
     }
   }
@@ -159,9 +152,8 @@ void readFlowmeter() {
   flowmeterResult = (flowmeterCounter * 60 / 7.5); // (Pulse frequency x 60 min) / 7.5Q = flow rate in L/hour 
   flowmeterCounter = 0;                   // Reset Counter
 
-  //Serial.print("FLOWMETER_IN=");
-  //Serial.println(flowmeterResult, DEC);            // Print litres/hour
-  //Serial.println(" L/hour");
+  Serial.print("WATER_FLOW_IN=");
+  Serial.println(flowmeterResult, DEC);
 }
 
 void setupPump() {

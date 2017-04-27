@@ -31,17 +31,23 @@ class ControllerThread(Thread):
     @staticmethod
     def configure(config, **kwargs):
         controllers.water_volume.init(config.min_water_volume, config.max_water_volume)
+        controllers.well_volume.init(config.well_filling_delay, config.min_flow_in)
 
     def run(self):
         while True:
-            pump_in_output = controllers.water_volume.pump_in()
-
-            if pump_in_output == DigitalOutput.on:
-                controllers.pump_in(True)
-            elif pump_in_output == DigitalOutput.off:
-                controllers.pump_in(False)
-
             sleep(0.5)  # TODO: to be determined
+
+            # Pump in
+            water_volume_output = controllers.water_volume.pump_in()
+            well_volume_output = controllers.well_volume.pump_in()
+
+            if water_volume_output == DigitalOutput.off or well_volume_output == DigitalOutput.off:
+                controllers.pump_in(False)
+                continue
+
+            if well_volume_output == DigitalOutput.on:
+                controllers.pump_in(True)
+                continue
 
 
 class IOThread(Thread):

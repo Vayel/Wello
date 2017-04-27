@@ -34,7 +34,17 @@ def need_config(func):
 @app.route('/')
 @need_config
 def home():
-    return flask.render_template('home.html')
+    volume = models.water_volume.last()
+    flow_in = models.water_flow_in.last()
+    pump_in_state = models.pump_in_state.last()
+
+    return flask.render_template(
+        'home.html',
+        config=models.config.last(),
+        water_volume=volume.volume if volume is not None else None,
+        water_flow_in=flow_in.flow if flow_in is not None else None,
+        pump_in_state=pump_in_state.running if pump_in_state is not None else None,
+    )
 
 
 @app.route('/pump_in/<int:running>', methods=['POST'])
@@ -64,7 +74,12 @@ def config():
     else:
         form = forms.Config(obj=models.config.last())
 
-    return flask.render_template('config.html', form=form)
+    return flask.render_template(
+        'config.html',
+        form=form,
+        cuboid_tanks=models.cuboid_tank.all(),
+        cylinder_tanks=models.cylinder_tank.all(),
+    )
 
 
 @app.route('/create-cylinder-tank', methods=['GET', 'POST'])
@@ -108,4 +123,7 @@ signals.pump_in_state.connect(
 )
 signals.water_volume_updated.connect(
     lambda volume, **kwargs: socketio.emit('water_volume', {'volume': volume})
+)
+signals.water_flow_in_updated.connect(
+    lambda value, **kwargs: socketio.emit('water_flow_in', {'value': value})
 )

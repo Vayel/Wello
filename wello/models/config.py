@@ -33,6 +33,18 @@ class Config(Base):
         info={'label': 'Max water volume (mm3)'},
         nullable=False,
     )
+    well_filling_delay = Column(
+        Integer,
+        min=0,
+        info={'label': 'Well filling delay (s)'},
+        nullable=False,
+    )
+    min_flow_in = Column(
+        Integer,
+        min=0,
+        info={'label': 'Min flow in (mm3/s)'},
+        nullable=False,
+    )
     tank = relationship(Tank, lazy='subquery')
     tank_id = Column(
         Integer,
