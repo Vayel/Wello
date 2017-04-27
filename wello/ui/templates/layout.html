@@ -1,12 +1,30 @@
 <!doctype html>
 <html>
 <head>
-    <title>{% block title %}{% endblock %}</title>
-    <meta charset="utf-8"/>
-    {% block css %}{% endblock %}
+  <title>{% block title %}{% endblock %}</title>
+  <meta charset="utf-8"/>
+  {% block css %}{% endblock %}
 </head>
 <body>
-    {% block body %}{% endblock %}
-    {% block js %}{% endblock %}
+  <header>
+    <nav>
+      <ul>
+        <li><a href="{{ url_for('home') }}">Home</a></li>
+        <li><a href="{{ url_for('config') }}">Configure</a></li>
+      </ul>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="flashes">
+        {% for category, message in messages %}
+          <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+  </header>
+  {% block body %}{% endblock %}
+  {% block js %}{% endblock %}
 </body>
 </html>

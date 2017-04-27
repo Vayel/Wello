@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% block body %}
+<form method="POST" action="{{ url_for('create_cylinder_tank') }}">
+  <table>
+    {% for field in form %}
+      <tr>
+        <td>{{ field.label }} :</td>
+        <td>
+          {{ field }}
+          {% if field.errors %}
+            <ul class="errors">{% for error in field.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+  <input type="submit" value="Create" />
+</form>
+{% endblock %}

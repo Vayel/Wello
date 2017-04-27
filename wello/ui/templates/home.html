@@ -1,6 +1,32 @@
 {% extends "layout.html" %}
 {% block body %}
-<form method="POST" action="{{ url_for('switch_led') }}">
-  <input type="submit" value="Switch led" />
+<p>
+Water volume: <span id="water_volume">Loading...</span>
+</p>
+
+<p>
+Pump in: <span id="pump_in_state">Loading...</span>
+</p>
+
+<form method="POST" action="{{ url_for('pump_in', running=1) }}">
+  <input type="submit" value="Start pump in" />
 </form>
+
+<form method="POST" action="{{ url_for('pump_in', running=0) }}">
+  <input type="submit" value="Stop pump in" />
+</form>
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+<script type="text/javascript" charset="utf-8">
+    var socket = io.connect('http://' + document.domain + ':' + location.port);
+    socket.on('connect', function() {});
+    socket.on('pump_in_state', function(msg){
+      document.querySelector('#pump_in_state').innerHTML = msg.running; 
+    });
+    socket.on('water_volume', function(msg){
+      document.querySelector('#water_volume').innerHTML = msg.volume; 
+    });
+</script>
 {% endblock %}
