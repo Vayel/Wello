@@ -40,6 +40,7 @@ def home():
 
     return flask.render_template(
         'home.html',
+        config=models.config.last(),
         water_volume=volume.volume if volume is not None else None,
         water_flow_in=flow_in.flow if flow_in is not None else None,
         pump_in_state=pump_in_state.running if pump_in_state is not None else None,
