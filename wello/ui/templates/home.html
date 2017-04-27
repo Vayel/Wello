@@ -29,6 +29,10 @@ Water flow in: <span id="water_flow_in">{{ water_flow_in }}</span>
 Pump in: <span id="pump_in_state">{{ pump_in_state }}</span>
 </p>
 
+<p>
+Urban network: <span id="urban_network_state">{{ urban_network_state }}</span>
+</p>
+
 <form method="POST" action="{{ url_for('pump_in', running=1) }}">
   <input type="submit" value="Start pump in" />
 </form>
@@ -49,6 +53,9 @@ Pump in: <span id="pump_in_state">{{ pump_in_state }}</span>
     socket.on('connect', function() {});
     socket.on('pump_in_state', function(msg) {
       document.querySelector('#pump_in_state').innerHTML = msg.running; 
+    });
+    socket.on('urban_network_state', function(msg) {
+      document.querySelector('#urban_network_state').innerHTML = msg.running; 
     });
     socket.on('water_volume', function(msg) {
       var el = document.querySelector('#water_volume');

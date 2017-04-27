@@ -9,7 +9,7 @@ class ArduinoProtocol(LineReceiver):
     WATER_DISTANCE_KEY = b'WATER_DISTANCE'
     WATER_FLOW_IN_KEY = b'WATER_FLOW_IN'
     PUMP_IN_KEY = b'PUMP_IN'
-    PUMP_OUT_KEY = b'PUMP_OUT'
+    URBAN_NETWORK_KEY = b'URBAN_NETWORK'
 
     def parse_message(self, message):
         try:
@@ -40,6 +40,13 @@ class ArduinoProtocol(LineReceiver):
                 return
 
             signals.pump_in_state.emit(running=val)
+        elif key == self.URBAN_NETWORK_KEY:
+            try:
+                val = bool(int(val))
+            except ValueError:
+                return
+
+            signals.urban_network_state.emit(running=val)
         elif key == self.WATER_FLOW_IN_KEY:
             try:
                 val = int(val)
@@ -55,5 +62,5 @@ class ArduinoProtocol(LineReceiver):
     def command_pump_in(self, running, **kwargs):
         self.write(self.PUMP_IN_KEY, b'1' if running else b'0')
 
-    def command_pump_out(self, running, **kwargs):
-        self.write(self.PUMP_OUT_KEY, b'1' if running else b'0')
+    def command_urban_network(self, running, **kwargs):
+        self.write(self.URBAN_NETWORK_KEY, b'1' if running else b'0')

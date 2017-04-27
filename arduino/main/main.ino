@@ -6,6 +6,7 @@ const int led = 7; // LED sur la broche 7
 const int warningButton = 3; // Bouton d'arrêt d'urgence sur la broche 3
 const int flowmeter = 2; // Flowmeter sur la broche 2
 const int pump = 10; // Pump sur la broche 10 (CH1)
+const int urbanNetwork = 7;
 
 String command = "";
 boolean commandComplete = false;
@@ -34,10 +35,11 @@ void setup() {
   // Pump
   setupPump();
 
+  setupUrbanNetwork();
+
   // Pump
   setupWarningButton();
 
-  Serial.println("PUMP_IN=0");
 }
 
 void loop() {
@@ -90,6 +92,12 @@ void checkReceiving(String command) {
   } else if (command.startsWith("PUMP_IN=1")) {
     Serial.println("PUMP_IN=1");
     digitalWrite(pump, HIGH);
+  } else if (command.startsWith("URBAN_NETWORK=0")) {
+    Serial.println("URBAN_NETWORK=0");
+    digitalWrite(urbanNetwork, LOW);
+  } else if (command.startsWith("URBAN_NETWORK=1")) {
+    Serial.println("URBAN_NETWORK=1");
+    digitalWrite(urbanNetwork, HIGH);
   }
 }
 
@@ -158,6 +166,13 @@ void readFlowmeter() {
 
 void setupPump() {
   pinMode(pump, OUTPUT);
+  Serial.println("PUMP_IN=0");
+}
+
+void setupUrbanNetwork() {
+  pinMode(urbanNetwork, OUTPUT);
+  digitalWrite(urbanNetwork, LOW);
+  Serial.println("URBAN_NETWORK=0");
 }
 
 void warningButtonAction() {
