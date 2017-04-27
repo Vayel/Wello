@@ -43,12 +43,18 @@ class ControllerThread(Thread):
 
             if water_volume_output == DigitalOutput.off or well_volume_output == DigitalOutput.off:
                 controllers.pump_in(False)
-                continue
 
-            if well_volume_output == DigitalOutput.on:
+            elif well_volume_output == DigitalOutput.on:
                 controllers.pump_in(True)
-                continue
 
+            # Urban network
+            water_volume_output = controllers.water_volume.urban_network()
+
+            if water_volume_output == DigitalOutput.on:
+                controllers.urban_network(True)
+            elif water_volume_output == DigitalOutput.off:
+                controllers.urban_network(False)
+                
 
 class IOThread(Thread):
     protocol = io.ArduinoProtocol()
@@ -64,3 +70,4 @@ class IOThread(Thread):
 
 signals.configuration.connect(ControllerThread.configure)
 signals.command_pump_in.connect(IOThread.protocol.command_pump_in)
+signals.command_urban_network.connect(IOThread.protocol.command_urban_network)

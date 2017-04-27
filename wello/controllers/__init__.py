@@ -12,3 +12,10 @@ def pump_in(running):
     state = models.pump_in_state.last()
     if state is None or state.running != running:
         signals.command_pump_in.emit(running=running)
+
+
+def urban_network(running):
+    state = models.urban_network_state.last()
+
+    if state is None or state.running != running:
+        signals.command_urban_network.emit(running=running)

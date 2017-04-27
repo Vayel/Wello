@@ -51,8 +51,10 @@ def pump_in():
 
 
 @check_init
-def pump_out():
-    if models.water_volume.last() <= _min:
-        return DigitalOutput.off
+def urban_network():
+    volume = models.water_volume.last()
 
-    return DigitalOutput.any
+    if volume is None or volume.volume <= _min:
+        return DigitalOutput.on
+
+    return DigitalOutput.off

@@ -58,5 +58,5 @@ def pump_in():
 
 
 @check_init
-def pump_out():
+def urban_network():
     return DigitalOutput.any

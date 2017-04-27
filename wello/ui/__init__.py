@@ -37,6 +37,7 @@ def home():
     volume = models.water_volume.last()
     flow_in = models.water_flow_in.last()
     pump_in_state = models.pump_in_state.last()
+    urban_network_state = models.urban_network_state.last()
 
     return flask.render_template(
         'home.html',
@@ -44,6 +45,7 @@ def home():
         water_volume=volume.volume if volume is not None else None,
         water_flow_in=flow_in.flow if flow_in is not None else None,
         pump_in_state=pump_in_state.running if pump_in_state is not None else None,
+        urban_network_state=urban_network_state.running if urban_network_state is not None else None,
     )
 
 
@@ -120,6 +122,9 @@ def create_cuboid_tank():
 
 signals.pump_in_state.connect(
     lambda running, **kwargs: socketio.emit('pump_in_state', {'running': running})
+)
+signals.urban_network_state.connect(
+    lambda running, **kwargs: socketio.emit('urban_network_state', {'running': running})
 )
 signals.water_volume_updated.connect(
     lambda volume, **kwargs: socketio.emit('water_volume', {'volume': volume})
