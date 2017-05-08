@@ -33,6 +33,10 @@ Pump in: <span id="pump_in_state">{{ pump_in_state }}</span>
 </p>
 
 <p>
+Water flow out: <span id="water_flow_out">{{ water_flow_out }}</span>
+</p>
+
+<p>
 Urban network: <span id="urban_network_state">{{ urban_network_state }}</span>
 </p>
 
@@ -118,6 +122,10 @@ Urban network: <span id="urban_network_state">{{ urban_network_state }}</span>
       } else {
           el.className = '';
       }
+    });
+    socket.on('water_flow_in', function(msg) {
+      var el = document.querySelector('#water_flow_out');
+      el.innerHTML = msg.value; 
     });
 </script>
 {% endblock %}

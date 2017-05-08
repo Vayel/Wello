@@ -60,12 +60,14 @@ class IOThread(Thread):
     protocol = io.ArduinoProtocol()
 
     def run(self):
-        #io.string.run(self.protocol)
+        io.string.run(self.protocol)
+        """
         io.serial.run(
             self.protocol,
             SERIAL_PORT,
             SERIAL_BAUDRATE
         )
+        """
 
 
 signals.configuration.connect(ControllerThread.configure)
