@@ -11,13 +11,16 @@
 {% endblock %}
 
 {% block body %}
-<p>
-Min water volume: {{ config.min_water_volume }}
-<br/>
-Water volume: <span id="water_volume">{{ water_volume }}</span>
-<br/>
-Max water volume: {{ config.max_water_volume }}
-</p>
+
+<canvas id="tank_canvas" width="200" height="300">
+  <p>
+  Min water volume: {{ config.min_water_volume }}
+  <br/>
+  Water volume: <span id="water_volume">{{ water_volume }}</span>
+  <br/>
+  Max water volume: {{ config.max_water_volume }}
+  </p>
+</canvas>
 
 <p>
 Min water flow in: {{ config.min_flow_in }}
@@ -47,7 +50,42 @@ Urban network: <span id="urban_network_state">{{ urban_network_state }}</span>
 <script type="text/javascript" charset="utf-8">
     var MIN_VOLUME = {{ config.min_water_volume }};
     var MAX_VOLUME = {{ config.max_water_volume }};
+    var TOTAL_VOLUME = {{ tank.volume }};
+    var MAX_WATER_PERCENTAGE = MAX_VOLUME / TOTAL_VOLUME;
+    var MIN_WATER_PERCENTAGE = MIN_VOLUME / TOTAL_VOLUME;
+
     var MIN_FLOW_IN = {{ config.min_flow_in }};
+
+    var tankCanvas = document.querySelector('#tank_canvas');
+
+    function drawTankCanvas(waterPercentage, maxWaterPercentage, minWaterPercentage) {
+        var ctx = tankCanvas.getContext('2d');
+
+        ctx.clearRect(0, 0, tankCanvas.width, tankCanvas.height);
+
+        var waterHeight = tankCanvas.height * waterPercentage;
+        ctx.fillStyle = 'blue';
+        ctx.fillRect(0, tankCanvas.height - waterHeight, tankCanvas.width, tankCanvas.height);
+        
+        var maxHeight = tankCanvas.height * (1 - maxWaterPercentage);
+        ctx.beginPath();
+        ctx.moveTo(0, maxHeight);
+        ctx.lineTo(tankCanvas.width, maxHeight);
+        ctx.strokeStyle = 'red';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        var minHeight = tankCanvas.height * (1 - minWaterPercentage);
+        ctx.beginPath();
+        ctx.moveTo(0, minHeight);
+        ctx.lineTo(tankCanvas.width, minHeight);
+        ctx.strokeStyle = 'red';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.lineWidth = 2;
+        ctx.strokeRect(0, 0, tankCanvas.width, tankCanvas.height);
+    }
 
     var socket = io.connect('http://' + document.domain + ':' + location.port);
     socket.on('connect', function() {});
@@ -68,6 +106,8 @@ Urban network: <span id="urban_network_state">{{ urban_network_state }}</span>
       } else {
           el.className = '';
       }
+
+      drawTankCanvas(msg.volume / (MAX_VOLUME / MIN_VOLUME), MAX_WATER_PERCENTAGE, MIN_WATER_PERCENTAGE);
     });
     socket.on('water_flow_in', function(msg) {
       var el = document.querySelector('#water_flow_in');
