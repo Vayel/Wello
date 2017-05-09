@@ -123,7 +123,7 @@ Urban network: <span id="urban_network_state">{{ urban_network_state }}</span>
           el.className = '';
       }
     });
-    socket.on('water_flow_in', function(msg) {
+    socket.on('water_flow_out', function(msg) {
       var el = document.querySelector('#water_flow_out');
       el.innerHTML = msg.value; 
     });
