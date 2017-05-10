@@ -3,6 +3,9 @@ from functools import wraps
 import flask
 import flask_socketio
 
+import plotly
+from plotly.graph_objs import Scatter, Layout
+
 from .. import controllers, exceptions, models, signals
 from . import forms
 
@@ -121,6 +124,60 @@ def create_cuboid_tank():
         form = forms.CuboidTank()
 
     return flask.render_template('create_cuboid_tank.html', form=form)
+
+
+@app.route('/statistics')
+def statistics():
+    FNAME = 'statistics.html'
+    
+    fig = plotly.tools.make_subplots(
+        rows=3, cols=1,
+        subplot_titles=('Input flow', 'Tank volume', 'Urban network usage',),
+        print_grid=False,
+    )
+    fig['layout'].showlegend = False
+
+    # Flow in
+    data = models.water_flow_in.all()
+    x = [line.datetime for line in data]
+    y = [line.flow for line in data]
+    fig.append_trace(
+        Scatter(x=x, y=y, name='Input flow'),
+        1, 1
+    )
+    fig['layout']['xaxis1'].update(title='Date')
+    fig['layout']['yaxis1'].update(title='Flow (mm3/s)')
+
+    # Tank volume
+    data = models.water_volume.all()
+    x = [line.datetime for line in data]
+    y = [line.volume for line in data]
+    fig.append_trace(
+        Scatter(x=x, y=y, name='Tank volume'),
+        2, 1
+    )
+    fig['layout']['xaxis2'].update(title='Date')
+    fig['layout']['yaxis2'].update(title='Volume (mm3)')
+
+    # Urban network
+    data = models.urban_network_state.all()
+    x = [line.datetime for line in data]
+    y = [int(line.running) for line in data]
+    fig.append_trace(
+        Scatter(x=x, y=y, mode='markers', name='Urban network'),
+        3, 1
+    )
+    fig['layout']['xaxis3'].update(title='Date')
+    fig['layout']['yaxis3'].update(title='Open', range=[0, 1])
+
+    plotly.offline.plot(
+        fig,
+        filename='wello/ui/templates/{}'.format(FNAME),
+        show_link=False,
+        auto_open=False
+    )
+
+    return flask.render_template(FNAME)
 
 
 signals.pump_in_state.connect(

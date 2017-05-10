@@ -47,6 +47,8 @@ Urban network: <span id="urban_network_state">{{ urban_network_state }}</span>
 <form method="POST" action="{{ url_for('pump_in', running=0) }}">
   <input type="submit" value="Stop pump in" />
 </form>
+
+<a href="{{ url_for('statistics') }}">Statistics</a>
 {% endblock %}
 
 {% block js %}

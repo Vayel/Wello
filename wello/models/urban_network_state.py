@@ -1,6 +1,6 @@
 from functools import partial
 
-from .shared import Base, write_digital_output
+from .shared import Base, all, write_digital_output
 from .digital_state import DigitalState, last as last_state
 from .. import signals
 
@@ -10,5 +10,6 @@ class UrbanNetworkState(Base, DigitalState):
 
 
 last = partial(last_state, UrbanNetworkState)
+all = partial(all, UrbanNetworkState)
 write = partial(write_digital_output, UrbanNetworkState, 'running')
 signals.urban_network_state.connect(write)
