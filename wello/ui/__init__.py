@@ -128,56 +128,66 @@ def create_cuboid_tank():
 
 @app.route('/statistics')
 def statistics():
-    FNAME = 'statistics.html'
-    
-    fig = plotly.tools.make_subplots(
-        rows=3, cols=1,
-        subplot_titles=('Input flow', 'Tank volume', 'Urban network usage',),
-        print_grid=False,
-    )
-    fig['layout'].showlegend = False
-
     # Flow in
     data = models.water_flow_in.all()
     x = [line.datetime for line in data]
     y = [line.flow for line in data]
-    fig.append_trace(
-        Scatter(x=x, y=y, name='Input flow'),
-        1, 1
-    )
-    fig['layout']['xaxis1'].update(title='Date')
-    fig['layout']['yaxis1'].update(title='Flow (mm3/s)')
 
+    flow_in_plot = plotly.offline.plot({
+        "data": [Scatter(x=x, y=y)],
+        "layout": Layout(
+            title="Input flow",
+            xaxis=dict(
+                title='Date',
+            ),
+            yaxis=dict(
+                title='Flow (mm3/s)',
+            ),
+        )
+    }, include_plotlyjs=False, output_type='div', show_link=False,)
+    
     # Tank volume
     data = models.water_volume.all()
     x = [line.datetime for line in data]
     y = [line.volume for line in data]
-    fig.append_trace(
-        Scatter(x=x, y=y, name='Tank volume'),
-        2, 1
-    )
-    fig['layout']['xaxis2'].update(title='Date')
-    fig['layout']['yaxis2'].update(title='Volume (mm3)')
+
+    tank_volume_plot = plotly.offline.plot({
+        "data": [Scatter(x=x, y=y)],
+        "layout": Layout(
+            title="Tank volume",
+            xaxis=dict(
+                title='Date',
+            ),
+            yaxis=dict(
+                title='Volume (mm3)',
+            ),
+        )
+    }, include_plotlyjs=False, output_type='div', show_link=False,)
 
     # Urban network
     data = models.urban_network_state.all()
     x = [line.datetime for line in data]
     y = [int(line.running) for line in data]
-    fig.append_trace(
-        Scatter(x=x, y=y, mode='markers', name='Urban network'),
-        3, 1
-    )
-    fig['layout']['xaxis3'].update(title='Date')
-    fig['layout']['yaxis3'].update(title='Open', range=[0, 1])
 
-    plotly.offline.plot(
-        fig,
-        filename='wello/ui/templates/{}'.format(FNAME),
-        show_link=False,
-        auto_open=False
-    )
+    urban_network_plot = plotly.offline.plot({
+        "data": [Scatter(x=x, y=y, mode='markers')],
+        "layout": Layout(
+            title="Urban network",
+            xaxis=dict(
+                title='Date',
+            ),
+            yaxis=dict(
+                title='Used',
+            ),
+        )
+    }, include_plotlyjs=False, output_type='div', show_link=False,)
 
-    return flask.render_template(FNAME)
+    return flask.render_template(
+        'statistics.html',
+        flow_in=flow_in_plot,
+        tank_volume=tank_volume_plot,
+        urban_network=urban_network_plot,
+    )
 
 
 signals.pump_in_state.connect(
