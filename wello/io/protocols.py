@@ -8,7 +8,7 @@ class ArduinoProtocol(LineReceiver):
     delimiter = b'\r\n'
     WATER_DISTANCE_KEY = b'WATER_DISTANCE'
     WATER_FLOW_IN_KEY = b'WATER_FLOW_IN'
-    WATER_FLOW_OUT_KEY = b'WATER_FLOW_IN'
+    WATER_FLOW_OUT_KEY = b'WATER_FLOW_OUT'
     PUMP_IN_KEY = b'PUMP_IN'
     URBAN_NETWORK_KEY = b'URBAN_NETWORK'
 
