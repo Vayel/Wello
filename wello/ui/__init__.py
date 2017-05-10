@@ -145,7 +145,7 @@ def statistics():
             ),
         )
     }, include_plotlyjs=False, output_type='div', show_link=False,)
-    
+
     # Tank volume
     data = models.water_volume.all()
     x = [line.datetime for line in data]
@@ -170,7 +170,14 @@ def statistics():
     y = [int(line.running) for line in data]
 
     urban_network_plot = plotly.offline.plot({
-        "data": [Scatter(x=x, y=y, mode='markers')],
+        "data": [Scatter(
+            x=x, y=y,
+            mode='lines',
+            line=dict(
+                shape='hv',
+            ),
+            fill='tozeroy',
+        )],
         "layout": Layout(
             title="Urban network",
             xaxis=dict(
@@ -178,6 +185,7 @@ def statistics():
             ),
             yaxis=dict(
                 title='Used',
+                tickvals=[0, 1],
             ),
         )
     }, include_plotlyjs=False, output_type='div', show_link=False,)
