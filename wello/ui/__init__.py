@@ -131,7 +131,7 @@ def statistics():
     # Flow in
     data = models.water_flow_in.all()
     x = [line.datetime for line in data]
-    y = [line.flow for line in data]
+    y = [line.flow / 10**6 for line in data]
 
     flow_in_plot = plotly.offline.plot({
         "data": [Scatter(x=x, y=y)],
@@ -141,7 +141,7 @@ def statistics():
                 title='Date',
             ),
             yaxis=dict(
-                title='Flow (mm3/s)',
+                title='Flow (L/s)',
             ),
         )
     }, include_plotlyjs=False, output_type='div', show_link=False,)
@@ -149,7 +149,7 @@ def statistics():
     # Tank volume
     data = models.water_volume.all()
     x = [line.datetime for line in data]
-    y = [line.volume for line in data]
+    y = [line.volume / 10**6 for line in data]
 
     tank_volume_plot = plotly.offline.plot({
         "data": [Scatter(x=x, y=y)],
@@ -159,7 +159,7 @@ def statistics():
                 title='Date',
             ),
             yaxis=dict(
-                title='Volume (mm3)',
+                title='Volume (L)',
             ),
         )
     }, include_plotlyjs=False, output_type='div', show_link=False,)
