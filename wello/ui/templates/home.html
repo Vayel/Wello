@@ -107,7 +107,7 @@ Urban network: <span id="urban_network_state">{{ urban_network_state }}</span>
           el.className = '';
       }
 
-      drawTankCanvas(msg.volume / (MAX_VOLUME / MIN_VOLUME), MAX_WATER_PERCENTAGE, MIN_WATER_PERCENTAGE);
+      drawTankCanvas(msg.volume / TOTAL_VOLUME, MAX_WATER_PERCENTAGE, MIN_WATER_PERCENTAGE);
     });
     socket.on('water_flow_in', function(msg) {
       var el = document.querySelector('#water_flow_in');
