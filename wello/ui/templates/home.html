@@ -127,5 +127,7 @@ Urban network: <span id="urban_network_state">{{ urban_network_state }}</span>
       var el = document.querySelector('#water_flow_out');
       el.innerHTML = msg.value; 
     });
+
+    drawTankCanvas({{ water_volume }} / TOTAL_VOLUME, MAX_WATER_PERCENTAGE, MIN_WATER_PERCENTAGE);
 </script>
 {% endblock %}
