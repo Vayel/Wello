@@ -1,6 +1,6 @@
 from functools import partial
 
-from .shared import Base, last_value, request
+from .shared import Base, all, last_value, request
 from .water_flow import WaterFlow
 from .. import signals
 
@@ -10,6 +10,7 @@ class WaterFlowOut(Base, WaterFlow):
 
 
 last = partial(last_value, WaterFlowOut)
+all = partial(all, WaterFlowOut)
 
 @request
 def write(value, session=None, **kwargs):

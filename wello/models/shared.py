@@ -34,6 +34,13 @@ def last_value(model, session=None):
 
 
 @request
+def all(model, session=None):
+    objs = session.query(model).all()
+    session.expunge_all()
+    return objs
+
+
+@request
 def write_digital_output(model, field, running, session=None):
     last = last_value(model, session=session)
     if last is not None and last.__dict__[field] == running:

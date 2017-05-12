@@ -3,6 +3,9 @@ from functools import wraps
 import flask
 import flask_socketio
 
+import plotly
+from plotly.graph_objs import Scatter, Layout
+
 from .. import controllers, exceptions, models, signals
 from . import forms
 
@@ -121,6 +124,97 @@ def create_cuboid_tank():
         form = forms.CuboidTank()
 
     return flask.render_template('create_cuboid_tank.html', form=form)
+
+
+@app.route('/statistics')
+def statistics():
+    # Flow in
+    data = models.water_flow_in.all()
+    x = [line.datetime for line in data]
+    y = [line.flow / 10**6 for line in data]
+
+    flow_in_plot = plotly.offline.plot({
+        "data": [Scatter(x=x, y=y)],
+        "layout": Layout(
+            title="Input flow",
+            xaxis=dict(
+                title='Date',
+            ),
+            yaxis=dict(
+                title='Flow (L/s)',
+            ),
+        )
+    }, include_plotlyjs=False, output_type='div', show_link=False,)
+
+    # Tank volume
+    data = models.water_volume.all()
+    x = [line.datetime for line in data]
+    y = [line.volume / 10**6 for line in data]
+
+    tank_volume_plot = plotly.offline.plot({
+        "data": [Scatter(x=x, y=y)],
+        "layout": Layout(
+            title="Tank volume",
+            xaxis=dict(
+                title='Date',
+            ),
+            yaxis=dict(
+                title='Volume (L)',
+            ),
+        )
+    }, include_plotlyjs=False, output_type='div', show_link=False,)
+    
+    # Flow out
+    data = models.water_flow_out.all()
+    x = [line.datetime for line in data]
+    y = [line.flow / 10**6 for line in data]
+
+    flow_out_plot = plotly.offline.plot({
+        "data": [Scatter(x=x, y=y)],
+        "layout": Layout(
+            title="Output flow",
+            xaxis=dict(
+                title='Date',
+            ),
+            yaxis=dict(
+                title='Flow (L/s)',
+            ),
+        )
+    }, include_plotlyjs=False, output_type='div', show_link=False,)
+
+    # Urban network
+    data = models.urban_network_state.all()
+    x = [line.datetime for line in data]
+    y = [int(line.running) for line in data]
+
+    urban_network_plot = plotly.offline.plot({
+        "data": [Scatter(
+            x=x, y=y,
+            mode='lines',
+            line=dict(
+                shape='hv',
+            ),
+            fill='tozeroy',
+        )],
+        "layout": Layout(
+            title="Urban network",
+            xaxis=dict(
+                title='Date',
+            ),
+            yaxis=dict(
+                title='Used',
+                tickvals=[0, 1],
+            ),
+        )
+    }, include_plotlyjs=False, output_type='div', show_link=False,)
+
+    return flask.render_template(
+        'statistics.html',
+        flow_in=flow_in_plot,
+        flow_out=flow_out_plot,
+        tank_volume=tank_volume_plot,
+        urban_network=urban_network_plot,
+    )
 
 
 signals.pump_in_state.connect(

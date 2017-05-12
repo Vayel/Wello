@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+
+{% block body %}
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+  {{ flow_in|safe }}
+  {{ tank_volume|safe }}
+  {{ flow_out|safe }}
+  {{ urban_network|safe }}
+{% endblock %}

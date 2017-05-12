@@ -3,7 +3,7 @@ from functools import partial
 from sqlalchemy import DateTime, Integer
 from sqlalchemy_defaults import Column
 
-from .shared import Base, last_value, request
+from .shared import Base, all, last_value, request
 from . import config
 from .. import exceptions, signals
 
@@ -18,6 +18,7 @@ class WaterVolume(Base):
 
 
 last = partial(last_value, WaterVolume)
+all = partial(all, WaterVolume)
 
 @request
 def write(volume, session=None, **kwargs):

@@ -60,7 +60,6 @@ class IOThread(Thread):
     protocol = io.ArduinoProtocol()
 
     def run(self):
-        # io.string.run(self.protocol)
         io.serial.run(
             self.protocol,
             SERIAL_PORT,
