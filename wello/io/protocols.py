@@ -8,6 +8,7 @@ class ArduinoProtocol(LineReceiver):
     delimiter = b'\r\n'
     WATER_DISTANCE_KEY = b'WATER_DISTANCE'
     WATER_FLOW_IN_KEY = b'WATER_FLOW_IN'
+    WATER_FLOW_OUT_KEY = b'WATER_FLOW_OUT'
     PUMP_IN_KEY = b'PUMP_IN'
     URBAN_NETWORK_KEY = b'URBAN_NETWORK'
 
@@ -54,6 +55,14 @@ class ArduinoProtocol(LineReceiver):
                 return
 
             signals.update_water_flow_in.emit(value=val)
+        elif key == self.WATER_FLOW_OUT_KEY:
+            try:
+                val = int(val)
+            except ValueError:
+                return
+
+            signals.update_water_flow_out.emit(value=val)
+
 
     def write(self, key, value):
         cmd = key + b'=' + value + b';'

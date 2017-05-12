@@ -14,6 +14,7 @@ from . import pump_in_state
 from . import tank
 from . import urban_network_state
 from . import water_flow_in
+from . import water_flow_out
 from . import water_volume
 
 make_lazy_configured(sqlalchemy.orm.mapper)

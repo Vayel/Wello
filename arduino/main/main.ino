@@ -2,11 +2,12 @@
 
 const int USTrig = 8; // Déclencheur sur la broche 8
 const int USEcho = 9; // Réception sur la broche 9
-const int led = 7; // LED sur la broche 7 
-const int warningButton = 3; // Bouton d'arrêt d'urgence sur la broche 3
-const int flowmeter = 2; // Flowmeter sur la broche 2
+const int led = 7; // LED sur la broche 7
+const int flowmeterIn = 3; // Flowmeter In sur la broche 3
+const int flowmeterOut = 2; // Flowmeter Out sur la broche 3
 const int pump = 10; // Pump sur la broche 10 (CH1)
-const int urbanNetwork = 7;
+const int electrovanne = 11; // Electrovanne sur la broche 11 (CH2)
+const int urbanNetwork = 12;
 
 String command = "";
 boolean commandComplete = false;
@@ -14,9 +15,10 @@ unsigned long currentTime;
 unsigned long previousTime;
 
 // Flowmeter variables
-volatile int  flowmeterCounter;     // Measures flow meter pulses
-unsigned int  flowmeterResult;      // Calculated litres/hour
-unsigned long beginFlowmeterDate;   // Begin date
+volatile int  flowmeterInCounter;     // Measures flow meter pulses
+unsigned int  flowmeterInResult;      // Calculated litres/hour
+volatile int  flowmeterOutCounter;     // Measures flow meter pulses
+unsigned int  flowmeterOutResult;      // Calculated litres/hour
 
 void setup() {
   Serial.begin(9600);
@@ -25,7 +27,7 @@ void setup() {
 
   currentTime = millis();
   previousTime = currentTime;
-
+  
   // Flowmeter 1
   setupFlowmeter();
 
@@ -35,17 +37,17 @@ void setup() {
   // Pump
   setupPump();
 
+  // Electrovanne
+  setupElectrovanne();
+
   setupUrbanNetwork();
-
-  // Pump
-  setupWarningButton();
-
 }
 
 void loop() {
   // Send values
   if (checkSending()) {
-    readFlowmeter();
+    readFlowmeterIn();
+    readFlowmeterOut();
     readWaterDistance();
   }
 
@@ -94,10 +96,16 @@ void checkReceiving(String command) {
     digitalWrite(pump, HIGH);
   } else if (command.startsWith("URBAN_NETWORK=0")) {
     Serial.println("URBAN_NETWORK=0");
-    digitalWrite(urbanNetwork, LOW);
+    digitalWrite(urbanNetwork, HIGH);
   } else if (command.startsWith("URBAN_NETWORK=1")) {
     Serial.println("URBAN_NETWORK=1");
-    digitalWrite(urbanNetwork, HIGH);
+    digitalWrite(urbanNetwork, LOW);
+  } else if (command.startsWith("ELECTROVANNE=0")) {
+    Serial.println("ELECTROVANNE=0");
+    digitalWrite(electrovanne, LOW);
+  } else if (command.startsWith("ELECTROVANNE=1")) {
+    Serial.println("ELECTROVANNE=1");
+    digitalWrite(electrovanne, HIGH);
   }
 }
 
@@ -143,45 +151,59 @@ void readWaterDistance() {
   }
 }
 
-void setupFlowmeter() {
-  pinMode(flowmeter, INPUT);
-  attachInterrupt(0, increaseFlowmeterCounter, RISING); // Setup Interrupt
-  sei();                                             // Enable interrupts
-}
-
-void increaseFlowmeterCounter()
-{ 
-   flowmeterCounter++;
-} 
-
-void readFlowmeter() {
-  // Every second, calculate and print litres/hour
-  // Pulse frequency (Hz) = 7.5Q, Q is flow rate in L/min. (Results in +/- 3% range)
-  flowmeterResult = (flowmeterCounter * 60 / 7.5); // (Pulse frequency x 60 min) / 7.5Q = flow rate in L/hour 
-  flowmeterCounter = 0;                   // Reset Counter
-
-  Serial.print("WATER_FLOW_IN=");
-  Serial.println(flowmeterResult, DEC);
-}
-
 void setupPump() {
   pinMode(pump, OUTPUT);
+  digitalWrite(pump, LOW);
   Serial.println("PUMP_IN=0");
+}
+
+void setupElectrovanne() {
+  pinMode(electrovanne, OUTPUT);
+  digitalWrite(electrovanne, LOW);
+  Serial.println("ELECTROVANNE=0");
 }
 
 void setupUrbanNetwork() {
   pinMode(urbanNetwork, OUTPUT);
-  digitalWrite(urbanNetwork, LOW);
+  digitalWrite(urbanNetwork, HIGH);
   Serial.println("URBAN_NETWORK=0");
 }
 
-void warningButtonAction() {
-  //Serial.println("ARRETTTTTTTTTTTTTTTTTTTTTTT DURGENCEEEEEE");
+void setupFlowmeter() {
+  pinMode(flowmeterIn, INPUT);
+  pinMode(flowmeterOut, INPUT);
+  attachInterrupt(digitalPinToInterrupt(flowmeterIn), increaseFlowmeterInCounter, RISING); // Setup Interrupt
+  attachInterrupt(digitalPinToInterrupt(flowmeterOut), increaseFlowmeterOutCounter, RISING); // Setup Interrupt
+  sei();                                             // Enable interrupts
 }
 
-void setupWarningButton() {
-  pinMode(warningButton, INPUT);
-  attachInterrupt(1, warningButtonAction, FALLING); // Setup Interrupt
-  sei();                                             // Enable interrupts
+void increaseFlowmeterInCounter()
+{ 
+   flowmeterInCounter++;
+} 
+
+void increaseFlowmeterOutCounter()
+{ 
+   flowmeterOutCounter++;
+} 
+
+void readFlowmeterIn() {
+  // Every second, calculate and print litres/hour
+  // Pulse frequency (Hz) = 7.5Q, Q is flow rate in L/min. (Results in +/- 3% range)
+  flowmeterInResult = (flowmeterInCounter * 60 / 7.5); // (Pulse frequency x 60 min) / 7.5Q = flow rate in L/hour 
+  flowmeterInCounter = 0;                   // Reset Counter
+
+  Serial.print("WATER_FLOW_IN=");
+  Serial.println(flowmeterInResult, DEC);
+}
+
+void readFlowmeterOut() {
+  // Every second, calculate and print litres/hour
+  // Pulse frequency (Hz) = 7.5Q, Q is flow rate in L/min. (Results in +/- 3% range)
+  flowmeterOutResult = (flowmeterOutCounter * 60 / 7.5); // (Pulse frequency x 60 min) / 7.5Q = flow rate in L/hour 
+  flowmeterOutCounter = 0;                   // Reset Counter
+
+  Serial.print("WATER_FLOW_OUT=");
+  Serial.println(flowmeterOutResult, DEC);
 }
 

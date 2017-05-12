@@ -36,6 +36,7 @@ def need_config(func):
 def home():
     volume = models.water_volume.last()
     flow_in = models.water_flow_in.last()
+    flow_out = models.water_flow_out.last()
     pump_in_state = models.pump_in_state.last()
     urban_network_state = models.urban_network_state.last()
 
@@ -45,6 +46,7 @@ def home():
         tank=models.config.tank(),
         water_volume=volume.volume if volume is not None else None,
         water_flow_in=flow_in.flow if flow_in is not None else None,
+        water_flow_out=flow_out.flow if flow_out is not None else None,
         pump_in_state=pump_in_state.running if pump_in_state is not None else None,
         urban_network_state=urban_network_state.running if urban_network_state is not None else None,
     )
@@ -132,4 +134,7 @@ signals.water_volume_updated.connect(
 )
 signals.water_flow_in_updated.connect(
     lambda value, **kwargs: socketio.emit('water_flow_in', {'value': value})
+)
+signals.water_flow_out_updated.connect(
+    lambda value, **kwargs: socketio.emit('water_flow_out', {'value': value})
 )
