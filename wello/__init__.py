@@ -30,12 +30,15 @@ class ControllerThread(Thread):
 
     @staticmethod
     def configure(config, **kwargs):
+        io.init(config.card_ip)
         controllers.water_volume.init(config.min_water_volume, config.max_water_volume)
         controllers.well_volume.init(config.well_filling_delay, config.min_flow_in)
 
     def run(self):
         while True:
-            sleep(0.5)  # TODO: to be determined
+            sleep(1)  # TODO: to be determined
+
+            io.read_all()
 
             # Pump in
             water_volume_output = controllers.water_volume.pump_in()
@@ -54,19 +57,8 @@ class ControllerThread(Thread):
                 controllers.urban_network(True)
             elif water_volume_output == DigitalOutput.off:
                 controllers.urban_network(False)
-                
-
-class IOThread(Thread):
-    protocol = io.ArduinoProtocol()
-
-    def run(self):
-        io.serial.run(
-            self.protocol,
-            SERIAL_PORT,
-            SERIAL_BAUDRATE
-        )
 
 
 signals.configuration.connect(ControllerThread.configure)
-signals.command_pump_in.connect(IOThread.protocol.command_pump_in)
-signals.command_urban_network.connect(IOThread.protocol.command_urban_network)
+signals.command_pump_in.connect(io.write_pump_in)
+signals.command_urban_network.connect(io.write_urban_network)

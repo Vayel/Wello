@@ -1,3 +1,4 @@
+import requests
 from wtforms_alchemy import ModelForm
 from wtforms.validators import ValidationError
 
@@ -9,8 +10,17 @@ class Config(ModelForm):
         model = models.Config
         include = [
             'water_volume_max_delta', 'min_water_volume', 'max_water_volume',
-            'tank_id',
+            'tank_id', 'card_ip',
         ]
+
+    def validate_card_ip(form, field):
+        url = "http://" + field.data
+        try:
+            requests.get(url)
+        except requests.exceptions.MissingSchema:
+            raise ValidationError('Invalid ip.')
+        except requests.exceptions.ConnectionError:
+            raise ValidationError('Cannot connect to this host.')
 
     def validate_min_water_volume(form, field):
         if field.data >= form.max_water_volume.data:

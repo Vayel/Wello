@@ -1,6 +1,7 @@
 import signalslot
 
 configuration = signalslot.Signal(args=['config'])
+error = signalslot.Signal(args=['msg'])
 
 pump_in_state = signalslot.Signal(args=['running'])
 command_pump_in = signalslot.Signal(args=['running'])

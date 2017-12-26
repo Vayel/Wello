@@ -15,13 +15,13 @@ class CylinderTank(Tank):
     radius = Column(
         Integer,
         min=1,
-        info={'label': 'Tank radius (mm)'},
+        info={'label': 'Rayon (mm)'},
         nullable=False,
     )
     height = Column(
         Integer,
         min=1,
-        info={'label': 'Tank height (mm)'},
+        info={'label': 'Hauteur (mm)'},
         nullable=False,
     )
 

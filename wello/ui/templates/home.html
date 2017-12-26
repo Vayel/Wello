@@ -1,51 +1,55 @@
 {% extends "layout.html" %}
+
 {% block css %}
-<style>
-  .overflow {
-    color: red;
-  }
-  .underflow {
-    color: blue;
-  }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}" />
 {% endblock %}
 
 {% block body %}
 
+{% if water_volume %}
+<p>
+  {{ water_volume.litre_volume }} L ({{ 100 * water_volume.litre_volume / tank.litre_volume }} %)
+  <br/>
+  {{ water_volume.datetime.strftime('%Y-%m-%d %H:%M') }}
+</p>
+{% endif %}
+
 <canvas id="tank_canvas" width="200" height="300">
   <p>
-  Min water volume: {{ config.min_water_volume }}
+  Volume minimal: {{ config.min_water_volume }}
   <br/>
-  Water volume: <span id="water_volume">{{ water_volume }}</span>
+  Volume courant: <span id="water_volume">{{ water_volume }}</span>
   <br/>
-  Max water volume: {{ config.max_water_volume }}
+  Volume maximal: {{ config.max_water_volume }}
   </p>
 </canvas>
 
+<p id="unknown_water_volume">Niveau d'eau du tank inconnu.</p>
+
 <p>
-Min water flow in: {{ config.min_flow_in }}
+Débit d'entrée minimal: {{ config.min_flow_in }}
 <br/>
-Water flow in: <span id="water_flow_in">{{ water_flow_in }}</span>
+Débit d'entrée courant: <span id="water_flow_in">{{ water_flow_in.flow }}</span>
 </p>
 
 <p>
-Pump in: <span id="pump_in_state">{{ pump_in_state }}</span>
+Pompe d'entrée: <span id="pump_in_state">{{ pump_in_state.running }}</span>
 </p>
 
 <p>
-Water flow out: <span id="water_flow_out">{{ water_flow_out }}</span>
+Débit de sortie courant: <span id="water_flow_out">{{ water_flow_out.flow }}</span>
 </p>
 
 <p>
-Urban network: <span id="urban_network_state">{{ urban_network_state }}</span>
+Réseau urbain: <span id="urban_network_state">{{ urban_network_state.running }}</span>
 </p>
 
 <form method="POST" action="{{ url_for('pump_in', running=1) }}">
-  <input type="submit" value="Start pump in" />
+  <input type="submit" value="Allumer la pompe d'entrée" />
 </form>
 
 <form method="POST" action="{{ url_for('pump_in', running=0) }}">
-  <input type="submit" value="Stop pump in" />
+  <input type="submit" value="Arrêter la pompe d'entrée" />
 </form>
 {% endblock %}
 
@@ -54,80 +58,12 @@ Urban network: <span id="urban_network_state">{{ urban_network_state }}</span>
 <script type="text/javascript" charset="utf-8">
     var MIN_VOLUME = {{ config.min_water_volume }};
     var MAX_VOLUME = {{ config.max_water_volume }};
+    var WATER_VOLUME = {{ water_volume.volume if water_volume != None else "null" }};
     var TOTAL_VOLUME = {{ tank.volume }};
     var MAX_WATER_PERCENTAGE = MAX_VOLUME / TOTAL_VOLUME;
     var MIN_WATER_PERCENTAGE = MIN_VOLUME / TOTAL_VOLUME;
 
     var MIN_FLOW_IN = {{ config.min_flow_in }};
-
-    var tankCanvas = document.querySelector('#tank_canvas');
-
-    function drawTankCanvas(waterPercentage, maxWaterPercentage, minWaterPercentage) {
-        var ctx = tankCanvas.getContext('2d');
-
-        ctx.clearRect(0, 0, tankCanvas.width, tankCanvas.height);
-
-        var waterHeight = tankCanvas.height * waterPercentage;
-        ctx.fillStyle = 'blue';
-        ctx.fillRect(0, tankCanvas.height - waterHeight, tankCanvas.width, tankCanvas.height);
-        
-        var maxHeight = tankCanvas.height * (1 - maxWaterPercentage);
-        ctx.beginPath();
-        ctx.moveTo(0, maxHeight);
-        ctx.lineTo(tankCanvas.width, maxHeight);
-        ctx.strokeStyle = 'red';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        var minHeight = tankCanvas.height * (1 - minWaterPercentage);
-        ctx.beginPath();
-        ctx.moveTo(0, minHeight);
-        ctx.lineTo(tankCanvas.width, minHeight);
-        ctx.strokeStyle = 'red';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        ctx.lineWidth = 2;
-        ctx.strokeRect(0, 0, tankCanvas.width, tankCanvas.height);
-    }
-
-    var socket = io.connect('http://' + document.domain + ':' + location.port);
-    socket.on('connect', function() {});
-    socket.on('pump_in_state', function(msg) {
-      document.querySelector('#pump_in_state').innerHTML = msg.running; 
-    });
-    socket.on('urban_network_state', function(msg) {
-      document.querySelector('#urban_network_state').innerHTML = msg.running; 
-    });
-    socket.on('water_volume', function(msg) {
-      var el = document.querySelector('#water_volume');
-      el.innerHTML = msg.volume; 
-
-      if(msg.volume < MIN_VOLUME) {
-          el.className = 'underflow';
-      } else if(msg.volume > MAX_VOLUME) {
-          el.className = 'overflow';
-      } else {
-          el.className = '';
-      }
-
-      drawTankCanvas(msg.volume / TOTAL_VOLUME, MAX_WATER_PERCENTAGE, MIN_WATER_PERCENTAGE);
-    });
-    socket.on('water_flow_in', function(msg) {
-      var el = document.querySelector('#water_flow_in');
-      el.innerHTML = msg.value; 
-
-      if(msg.volume < MIN_FLOW_IN) {
-          el.className = 'underflow';
-      } else {
-          el.className = '';
-      }
-    });
-    socket.on('water_flow_out', function(msg) {
-      var el = document.querySelector('#water_flow_out');
-      el.innerHTML = msg.value; 
-    });
-
-    drawTankCanvas({{ water_volume }} / TOTAL_VOLUME, MAX_WATER_PERCENTAGE, MIN_WATER_PERCENTAGE);
 </script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/home.js') }}"></script>
 {% endblock %}

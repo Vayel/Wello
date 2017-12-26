@@ -1,0 +1,12 @@
+header {
+    border-bottom: 1px solid #000;
+    margin-bottom: 10px;
+}
+
+nav ul {
+    text-align: center;
+}
+
+nav li {
+    display: inline-block;
+}

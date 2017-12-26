@@ -1,8 +1,6 @@
 import math
 
-from .. import exceptions, models
-
-TOTAL_HEIGHT = 300
+from . import exceptions, models
 
 
 def distance_to_cylindric_volume(distance, radius, height):

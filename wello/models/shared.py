@@ -47,3 +47,9 @@ def write_digital_output(model, field, running, session=None):
         return
 
     session.add(model(**{field: running,}))
+
+
+class VolumeMixin:
+    @property
+    def litre_volume(self):
+        return int(self.volume / 1000000.)

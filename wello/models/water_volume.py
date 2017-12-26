@@ -3,18 +3,18 @@ from functools import partial
 from sqlalchemy import DateTime, Integer
 from sqlalchemy_defaults import Column
 
-from .shared import Base, all, last_value, request
+from .shared import Base, VolumeMixin, all, last_value, request
 from . import config
 from .. import exceptions, signals
 
 
-class WaterVolume(Base):
+class WaterVolume(Base, VolumeMixin):
     __lazy_options__ = {}
     __tablename__ = 'water_volume'
 
     id = Column(Integer, primary_key=True)
     datetime = Column(DateTime, auto_now=True, nullable=False)
-    volume = Column(Integer, nullable=False)  # cL
+    volume = Column(Integer, nullable=False)
 
 
 last = partial(last_value, WaterVolume)

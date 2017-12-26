@@ -27,7 +27,7 @@ def need_config(func):
     @wraps(func)  # For Flask
     def wrapper(*args, **kwargs):
         if not models.config.is_valid():
-            flask.flash("L'application nécessite d'être configurée.", 'error')
+            flask.flash("L'application demande d'être configurée.", 'error')
             return flask.redirect(flask.url_for('config'))
 
         return func(*args, **kwargs)
@@ -37,21 +37,15 @@ def need_config(func):
 @app.route('/')
 @need_config
 def home():
-    volume = models.water_volume.last()
-    flow_in = models.water_flow_in.last()
-    flow_out = models.water_flow_out.last()
-    pump_in_state = models.pump_in_state.last()
-    urban_network_state = models.urban_network_state.last()
-
     return flask.render_template(
         'home.html',
         config=models.config.last(),
         tank=models.config.tank(),
-        water_volume=volume.volume if volume is not None else None,
-        water_flow_in=flow_in.flow if flow_in is not None else None,
-        water_flow_out=flow_out.flow if flow_out is not None else None,
-        pump_in_state=pump_in_state.running if pump_in_state is not None else None,
-        urban_network_state=urban_network_state.running if urban_network_state is not None else None,
+        water_volume=models.water_volume.last(),
+        water_flow_in=models.water_flow_in.last(),
+        water_flow_out=models.water_flow_out.last(),
+        pump_in_state=models.pump_in_state.last(),
+        urban_network_state=models.urban_network_state.last(),
     )
 
 
@@ -60,8 +54,8 @@ def home():
 def pump_in(running):
     try:
         controllers.pump_in(running)
-    except exceptions.TankMayOverflow:
-        flask.flash('Allumer la pompe peut faire déborder la cuve.', 'error')
+    except exceptions.TankMayOverflow as e:
+        flask.flash(str(e), 'error')
 
     return flask.redirect(flask.url_for('home'))
 
@@ -127,6 +121,7 @@ def create_cuboid_tank():
 
 
 @app.route('/statistics')
+@need_config
 def statistics():
     # Flow in
     data = models.water_flow_in.all()
@@ -231,4 +226,7 @@ signals.water_flow_in_updated.connect(
 )
 signals.water_flow_out_updated.connect(
     lambda value, **kwargs: socketio.emit('water_flow_out', {'value': value})
+)
+signals.error.connect(
+    lambda msg, **kwargs: socketio.emit('error', {'text': msg})
 )

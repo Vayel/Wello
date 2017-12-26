@@ -1,5 +1,7 @@
 {% extends "layout.html" %}
 {% block body %}
+<a href="{{ url_for('config') }}">Retour</a>
+
 <form method="POST" action="{{ url_for('create_cylinder_tank') }}">
   <table>
     {% for field in form %}
@@ -14,6 +16,6 @@
       </tr>
     {% endfor %}
   </table>
-  <input type="submit" value="Create" />
+  <input type="submit" value="Créer" />
 </form>
 {% endblock %}

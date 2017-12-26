@@ -1,10 +1,10 @@
 from sqlalchemy import Integer, String
 from sqlalchemy_defaults import Column
 
-from .shared import Base, request
+from .shared import Base, request, VolumeMixin
 
 
-class Tank(Base):
+class Tank(Base, VolumeMixin):
     __tablename__ = 'tank'
 
     id = Column(Integer, primary_key=True)

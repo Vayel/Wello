@@ -3,26 +3,25 @@
 <head>
   <title>{% block title %}{% endblock %}</title>
   <meta charset="utf-8"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}" />
   {% block css %}{% endblock %}
 </head>
 <body>
   <header>
     <nav>
       <ul>
-        <li><a href="{{ url_for('home') }}">Home</a></li>
-        <li><a href="{{ url_for('config') }}">Configure</a></li>
-        <li><a href="{{ url_for('statistics') }}">Statistics</a></li>
+        <li><a href="{{ url_for('home') }}">Accueil</a></li>
+        <li><a href="{{ url_for('config') }}">Configuration</a></li>
+        <li><a href="{{ url_for('statistics') }}">Historique</a></li>
       </ul>
     </nav>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <ul class="flashes">
-        {% for category, message in messages %}
-          <li class="{{ category }}">{{ message }}</li>
-        {% endfor %}
-        </ul>
-      {% endif %}
+      <ul class="flashes">
+      {% for category, message in messages %}
+        <li class="{{ category }}">{{ message }}</li>
+      {% endfor %}
+      </ul>
     {% endwith %}
   </header>
   {% block body %}{% endblock %}
